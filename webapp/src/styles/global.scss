@@ -1,0 +1,26 @@
+@use './tokens' as *;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family;
+  background: $color-background;
+  color: $color-text-primary;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}

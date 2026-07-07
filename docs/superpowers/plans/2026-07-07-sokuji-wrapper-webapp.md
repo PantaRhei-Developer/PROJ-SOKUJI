@@ -24,30 +24,38 @@
 | `webapp/src/components/ModeCard/ModeCard.tsx` + `.scss` | Implements `docs/spec/components/ModeCard.md`. |
 | `webapp/src/components/StepIndicator/StepIndicator.tsx` + `.scss` | Implements `docs/spec/components/StepIndicator.md`. |
 | `webapp/src/context/OnboardingContext.tsx` | Shared in-memory state for mode/languages/devices across the wizard + Settings. |
-| `webapp/src/styles/tokens.scss` | SCSS variables generated from `docs/spec/themes/wrapper-webapp-tokens.md`. |
+| `webapp/src/styles/tokens.scss`, `webapp/src/styles/global.scss` | SCSS variables generated from `docs/spec/themes/wrapper-webapp-tokens.md`, plus base reset/background. |
 | `webapp/firebase.json`, `webapp/.firebaserc` | Firebase Hosting config targeting `pantarhei-int-sandbox-prd`. |
+| `webapp/src/components/common/PrimaryButton.tsx`, `BackLink.tsx`, `FormSelect.tsx`, `Tooltip.tsx` (+ `.scss` each) | Shared low-level components not called out individually in the spec, factored out to avoid duplicating the same button/select/back-link markup across 5 screens. |
+| `webapp/src/components/ConversationRow/ConversationRow.tsx` + `.scss` | Visual-only replica of `src/components/MainPanel/ConversationRow.tsx` for the Session screen's two dummy rows — see Reused section below for why this isn't a literal import. |
+| `webapp/src/data/languages.ts` | Mirrors `simplifiedLanguages`/`fullLanguages` from `src/components/Settings/sections/LanguageSection.tsx`. |
+| `webapp/index.html`, `webapp/src/vite-env.d.ts`, `webapp/tsconfig.node.json`, `webapp/.gitignore` | Standard Vite/TS project scaffolding files. |
 
 ### Modified
 
 | File | Change |
 |---|---|
-| none | This phase does not touch the existing `src/`, `extension/`, or `electron/` trees. |
+| `docs/structure.md` | Added the new top-level `webapp/` entry. |
 
 ### Reused without modification
 
 | File | Why |
 |---|---|
-| Existing Tooltip component (from `src/components/`) | `docs/spec/screens/SetupWizard.md` step 2 reuses the existing app's Tooltip for the virtual-mic hint; exact reuse mechanism (copy vs. shared package) to be decided at implementation time. |
+| `src/assets/logo.png` | Copied byte-for-byte into `webapp/src/assets/logo.png` (Login and Session screens). |
+
+### Decided at implementation time (per the "TBD" note above)
+
+Both the existing app's `Tooltip` (`src/components/Tooltip`) and `ConversationRow` (`src/components/MainPanel/ConversationRow`) turned out to be too coupled to app-only dependencies (`@floating-ui/react` usage was fine and got reused as a library, but `ConversationRow` pulls in `react-i18next` and the `ConversationItem`/session-store types) to import across the two independent projects in this phase. Both were re-implemented locally in `webapp/` as presentational-only components matching the same visual output (same CSS class names/values for `ConversationRow`), rather than sharing code. A real shared package is deferred until there's a second consumer that justifies the extraction.
 
 ---
 
 ## Steps
 
-- [ ] Scaffold `webapp/` (Vite + React + TS), add React Router and lucide-react.
-- [ ] Add `webapp/src/styles/tokens.scss` from the design-tokens spec.
-- [ ] Build `StepIndicator` and `ModeCard` components per their specs.
-- [ ] Build `Login`, `ModeSelect`, the three `SetupWizard` steps, `Session`, and `Settings` screens, wiring navigation exactly as specified.
-- [ ] Add `OnboardingContext` and thread it through ModeSelect → SetupWizard → Settings.
-- [ ] Manually click through the full flow in a browser against every route.
-- [ ] Add Firebase Hosting config and deploy; confirm the live URL matches the spec screen-by-screen.
-- [ ] Update `docs/structure.md` if the new top-level `webapp/` directory should be reflected there.
+- [x] Scaffold `webapp/` (Vite + React + TS), add React Router and lucide-react.
+- [x] Add `webapp/src/styles/tokens.scss` from the design-tokens spec.
+- [x] Build `StepIndicator` and `ModeCard` components per their specs.
+- [x] Build `Login`, `ModeSelect`, the three `SetupWizard` steps, `Session`, and `Settings` screens, wiring navigation exactly as specified.
+- [x] Add `OnboardingContext` and thread it through ModeSelect → SetupWizard → Settings.
+- [x] Manually click through the full flow in a browser against every route (Playwright + Chromium, since no interactive browser is available in this environment; screenshots confirmed each screen and zero console errors).
+- [ ] Deploy to Firebase Hosting; confirm the live URL matches the spec screen-by-screen. **Deferred** — `npm run build` succeeds and `firebase.json`/`.firebaserc` are in place, but the actual `firebase deploy` was intentionally left for the user to run (or explicitly request), since it publishes to a shared project.
+- [x] Update `docs/structure.md` to reflect the new top-level `webapp/` directory.

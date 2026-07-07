@@ -8,19 +8,19 @@
 
 Centered column, max-width 640px, 48px top margin.
 
-1. Title, 24px bold, centered: "Choose how you want to translate"
-2. Subtitle, 14px muted, centered, 8px below the title: "You can change this later in Settings."
+1. Title, 24px bold, centered: "翻訳方式を選んでください"
+2. Subtitle, 14px muted, centered, 8px below the title: "設定は後から変更できます。"
 3. Two [ModeCard](../components/ModeCard.md) instances in a flex row, 24px gap, 32px top margin, wrapping to a column below a 640px viewport width. Neither card is marked as superior — both get a neutral tagline badge stating their core trade-off, not a value judgment:
-   - **Local model** — tagline `"Free · Fast"`, bullets `["Free", "Fast responses", "First run downloads ~4GB"]`
-   - **API usage** — tagline `"Pay-as-you-go · No download"`, bullets `["Ready instantly, nothing to install", "Pay-as-you-go, no API key needed", "Responses are somewhat slower"]`
+   - **ローカルモデル** — tagline `"無料・高速"`, bullets `["無料", "高速レスポンス", "初回起動時に約4GBのダウンロードが必要"]`
+   - **API利用** — tagline `"従量課金・ダウンロード不要"`, bullets `["インストール不要ですぐ使える", "従量課金、APIキー不要", "レスポンスはやや遅め"]`
 4. Footer bar, 32px top margin, flex row with space-between:
-   - Left: text link "← Back" (14px, muted, hover `text.primary`)
-   - Right: primary button "Next", 44px height, disabled (50% opacity, no pointer events) until a card is selected.
+   - Left: text link "← 戻る" (14px, muted, hover `text.primary`)
+   - Right: primary button "次へ", 44px height, disabled (50% opacity, no pointer events) until a card is selected.
 
 ## Navigation
 
-- "← Back" → [`/login`](Login.md)
-- "Next" (enabled only after a card is selected) → [`/setup/language`](SetupWizard.md#1-language-setuplanguage)
+- "← 戻る" → [`/login`](Login.md)
+- "次へ" (enabled only after a card is selected) → [`/setup/language`](SetupWizard.md#1-language-setuplanguage)
 
 ## Data & state
 

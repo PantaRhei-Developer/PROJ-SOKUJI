@@ -2,25 +2,25 @@
 
 **Route**: `/settings`
 **Tokens**: [wrapper-webapp-tokens](../themes/wrapper-webapp-tokens.md)
-**Status**: Read-only summary in this phase — "Change" links jump into the wizard, but nothing is persisted.
+**Status**: Read-only summary in this phase — "変更" links jump into the wizard, but nothing is persisted.
 
 ## Layout
 
 Single centered column, max-width 480px, 32px top margin.
 
-1. Back link, 14px, top-left: "← Back to session".
-2. Title, 24px bold, 24px top margin: "Settings".
+1. Back link, 14px, top-left: "← セッションに戻る".
+2. Title, 24px bold, 24px top margin: "設定".
 3. Three summary rows, each a flex row space-between with 16px vertical padding and a bottom `border.default` divider:
-   - "Mode" — current value ("Local model" / "API usage") + a "Change" link on the right.
-   - "Languages" — "{spoken} → {target}" + a "Change" link.
-   - "Devices" — "{microphone label} / {speaker label}" + a "Change" link.
+   - "モード" — current value ("ローカルモデル" / "API利用") + a "変更" link on the right.
+   - "言語" — "{spoken} → {target}" + a "変更" link.
+   - "デバイス" — "{microphone label} / {speaker label}" + a "変更" link.
 
 ## Navigation
 
-- "← Back to session" → [`/session`](Session.md).
-- "Change" next to "Mode" → [`/mode-select`](ModeSelect.md).
-- "Change" next to "Languages" → [`/setup/language`](SetupWizard.md#1-language-setuplanguage).
-- "Change" next to "Devices" → [`/setup/audio`](SetupWizard.md#2-devices-setupaudio).
+- "← セッションに戻る" → [`/session`](Session.md).
+- "変更" next to "モード" → [`/mode-select`](ModeSelect.md).
+- "変更" next to "言語" → [`/setup/language`](SetupWizard.md#1-language-setuplanguage).
+- "変更" next to "デバイス" → [`/setup/audio`](SetupWizard.md#2-devices-setupaudio).
 - Re-entering the wizard from Settings is a direct jump to the named step only — it does not chain forward through the remaining wizard steps in this phase, since nothing is functional yet.
 
 ## Data & state

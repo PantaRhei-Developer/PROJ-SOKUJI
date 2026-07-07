@@ -1,0 +1,29 @@
+{
+  "name": "sokuji-wrapper-webapp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Login-gated onboarding wrapper web app for Sokuji (screens-only phase)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@floating-ui/react": "^0.27.15",
+    "lucide-react": "^0.515.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^5.1.4",
+    "sass": "^1.78.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.3.1"
+  }
+}

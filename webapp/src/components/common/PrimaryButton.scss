@@ -1,0 +1,32 @@
+@use '../../styles/tokens' as *;
+
+.primary-button {
+  height: $button-height;
+  padding: 0 $space-5;
+  border: none;
+  border-radius: $radius-button;
+  background: $color-primary;
+  color: $color-background;
+  font-size: $font-size-button;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  &--full {
+    width: 100%;
+  }
+}
+
+@media (max-width: 400px) {
+  .primary-button {
+    width: 100%;
+  }
+}

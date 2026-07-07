@@ -5,15 +5,15 @@
 
 ## Purpose
 
-A selectable card presenting one translation mode ("Local model" or "API usage") as an equally-valid trade-off, so the user picks exactly one before continuing the setup wizard.
+A selectable card presenting one translation mode ("ローカルモデル" or "API利用") as an equally-valid trade-off, so the user picks exactly one before continuing the setup wizard.
 
 ## Props
 
 | Prop | Type | Required | Description |
 |---|---|---|---|
-| `title` | `string` | yes | Mode name, e.g. "Local model" |
+| `title` | `string` | yes | Mode name, e.g. "ローカルモデル" |
 | `bullets` | `string[]` | yes | 2–4 short feature bullets, rendered in the given order |
-| `tagline` | `string` | no | Optional short, neutral pill label stating a trade-off, e.g. "Free · Fast" — never a value judgment like "Recommended", since the two modes are presented as equally valid choices |
+| `tagline` | `string` | no | Optional short, neutral pill label stating a trade-off, e.g. "無料・高速" — never a value judgment like "おすすめ", since the two modes are presented as equally valid choices |
 | `selected` | `boolean` | yes | Controls the selected visual state |
 | `onSelect` | `() => void` | yes | Fired on click, or Enter/Space while focused |
 
@@ -40,4 +40,4 @@ Click, or `Enter`/`Space` while focused, calls `onSelect`. The parent screen own
 
 ## Usage example
 
-Two instances placed in a flex row on [ModeSelect](../screens/ModeSelect.md), both with a tagline so neither reads as "the" recommended choice: "Local model" (tagline `"Free · Fast"`, bullets `["Free", "Fast responses", "First run downloads ~4GB"]`) and "API usage" (tagline `"Pay-as-you-go · No download"`, bullets `["Ready instantly, nothing to install", "Pay-as-you-go, no API key needed", "Responses are somewhat slower"]`).
+Two instances placed in a flex row on [ModeSelect](../screens/ModeSelect.md), both with a tagline so neither reads as "the" recommended choice: "ローカルモデル" (tagline `"無料・高速"`, bullets `["無料", "高速レスポンス", "初回起動時に約4GBのダウンロードが必要"]`) and "API利用" (tagline `"従量課金・ダウンロード不要"`, bullets `["インストール不要ですぐ使える", "従量課金、APIキー不要", "レスポンスはやや遅め"]`).

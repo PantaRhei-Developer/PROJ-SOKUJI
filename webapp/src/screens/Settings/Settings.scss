@@ -1,0 +1,34 @@
+@use '../../styles/tokens' as *;
+
+.settings {
+  max-width: $max-width-wide - 160px;
+  margin: 0 auto;
+  padding: $space-6 $space-4;
+
+  &__title {
+    margin: $space-5 0 0;
+    font-size: $font-size-title;
+    font-weight: 700;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-4 0;
+    border-bottom: 1px solid $color-border-default;
+    font-size: $font-size-body;
+  }
+
+  &__change {
+    background: none;
+    border: none;
+    color: $color-primary;
+    cursor: pointer;
+    font-size: $font-size-body;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -47,8 +47,12 @@ This design doc intentionally does not restate that detail — it records why th
 - Onboarding selections (mode, languages, devices) are held in a single React context scoped to the `/mode-select` + `/setup/*` + `/settings` route tree — no global state library is needed at this phase.
 - Deploy target: Firebase project `pantarhei-int-sandbox-prd`, `firebase deploy --only hosting`.
 
+## Resolved during implementation (2026-07-07)
+
+- **Product name**: "SOKUJI Allo" (replaces the placeholder "Sokuji" branding used in the first draft of this doc and its paired spec files).
+- **UI language**: all on-screen copy is Japanese (not English), matching the target audience for this webapp. `docs/spec/` documents describe the screens in English prose but quote the actual Japanese strings shown to users, consistent with how language names elsewhere in the spec (e.g. "日本語") are already quoted verbatim.
+
 ## Open Questions
 
-- Final product naming (currently placeholder "Sokuji" branding is reused).
-- Whether Settings' "Change" links should, in a later phase, re-run only the changed step or the full wizard.
+- Whether Settings' "変更" links should, in a later phase, re-run only the changed step or the full wizard.
 - Billing timing/model for API usage mode (deferred; not resolved in this phase).

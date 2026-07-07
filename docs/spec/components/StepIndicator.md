@@ -11,7 +11,7 @@ Shows wizard progress as a horizontal row of steps so the user always knows how 
 
 | Prop | Type | Required | Description |
 |---|---|---|---|
-| `steps` | `string[]` | yes | Step labels in order, e.g. `["Language", "Devices", "Confirm"]` |
+| `steps` | `string[]` | yes | Step labels in order, e.g. `["言語", "デバイス", "確認"]` |
 | `currentStep` | `number` | yes | 0-indexed position of the active step |
 
 ## Visual design
