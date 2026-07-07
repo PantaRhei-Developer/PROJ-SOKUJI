@@ -2,8 +2,12 @@
 
 .setup-wizard {
   max-width: 480px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: $space-4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   &__content {
     display: flex;

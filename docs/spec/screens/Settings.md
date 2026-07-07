@@ -6,9 +6,9 @@
 
 ## Layout
 
-Single centered column, max-width 480px, 32px top margin.
+Single column, vertically and horizontally centered in the viewport (`min-height: 100vh`, flex column, `justify-content: center`), max-width 480px.
 
-1. Back link, 14px, top-left: "← セッションに戻る".
+1. Back link, 14px, left-aligned (`align-self: flex-start` so it doesn't stretch/center like the rest of the flex column): "← セッションに戻る".
 2. Title, 24px bold, 24px top margin: "設定".
 3. Three summary rows, each a flex row space-between with 16px vertical padding and a bottom `border.default` divider:
    - "モード" — current value ("ローカルモデル" / "API利用") + a "変更" link on the right.

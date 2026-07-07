@@ -8,8 +8,9 @@ Three routed steps sharing one layout shell.
 
 ## Shared layout
 
+- The whole shell (step indicator + content + footer) is vertically and horizontally centered in the viewport (`min-height: 100vh`, flex column, `justify-content: center`), max-width 480px.
 - [StepIndicator](../components/StepIndicator.md) with `steps={["言語", "デバイス", "確認"]}`, `currentStep` set to 0/1/2 to match the current route.
-- Content area below, max-width 480px, centered.
+- Content area below the step indicator.
 - Footer nav bar, 32px top margin, flex row with space-between:
   - Left: text link "← 戻る"
   - Right: primary button, labeled "次へ" on steps 1–2, labeled "セッションを開始" on step 3.

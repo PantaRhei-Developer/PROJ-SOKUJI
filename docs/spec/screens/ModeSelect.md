@@ -6,7 +6,7 @@
 
 ## Layout
 
-Centered column, max-width 640px, 48px top margin.
+Column vertically and horizontally centered in the viewport (`min-height: 100vh`, flex column, `justify-content: center`), max-width 640px.
 
 1. Title, 24px bold, centered: "翻訳方式を選んでください"
 2. Subtitle, 14px muted, centered, 8px below the title: "設定は後から変更できます。"
@@ -30,4 +30,4 @@ Centered column, max-width 640px, 48px top margin.
 
 ## Error handling / edge cases
 
-- "Next" is unreachable (disabled) while `selectedMode` is `null` — this is the only validation needed in this phase.
+- "次へ" is unreachable (disabled) while `selectedMode` is `null` — this is the only validation needed in this phase.

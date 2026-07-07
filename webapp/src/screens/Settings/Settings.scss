@@ -2,8 +2,19 @@
 
 .settings {
   max-width: $max-width-wide - 160px;
+  min-height: 100vh;
   margin: 0 auto;
   padding: $space-6 $space-4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  // The back-link <button> is a direct child of this flex column; without this
+  // it stretches to the container width and its default text-align: center
+  // centers the label instead of keeping it flush left.
+  > .back-link {
+    align-self: flex-start;
+  }
 
   &__title {
     margin: $space-5 0 0;
