@@ -1,0 +1,76 @@
+@use '../../styles/tokens' as *;
+
+.session {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &__top-bar {
+    height: 56px;
+    padding: 0 $space-4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid $color-border-default;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+  }
+
+  &__logo {
+    width: 24px;
+    height: 24px;
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  &__settings-button {
+    background: none;
+    border: none;
+    color: $color-text-primary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  &__conversation {
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-5;
+  }
+
+  &__placeholder {
+    text-align: center;
+    color: $color-text-muted;
+    font-size: $font-size-body;
+    margin-top: $space-6;
+  }
+
+  &__status-bar {
+    height: 64px;
+    border-top: 1px solid $color-border-default;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $space-2;
+  }
+
+  &__mic-icon {
+    color: $color-text-muted;
+  }
+
+  &__status-text {
+    font-size: $font-size-body;
+    color: $color-text-muted;
+  }
+}

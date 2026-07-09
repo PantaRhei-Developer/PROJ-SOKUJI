@@ -1,0 +1,31 @@
+@use '../../styles/tokens' as *;
+
+.confirm-step {
+  padding: $space-5;
+  border: 1px solid $color-border-default;
+  border-radius: $radius-card;
+  background: $color-surface;
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: $font-size-body;
+
+    &:not(:last-child) {
+      padding-bottom: $space-3;
+      border-bottom: 1px solid $color-border-default;
+    }
+  }
+
+  &__key {
+    color: $color-text-muted;
+  }
+
+  &__value {
+    font-weight: 600;
+  }
+}

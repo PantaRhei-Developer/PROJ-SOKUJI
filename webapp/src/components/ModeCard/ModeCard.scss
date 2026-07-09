@@ -1,0 +1,78 @@
+@use '../../styles/tokens' as *;
+
+.mode-card {
+  position: relative;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1;
+  padding: $space-5;
+  border: 1px solid $color-border-default;
+  border-radius: $radius-card;
+  background: $color-surface;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $color-text-muted;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-border-selected;
+    outline-offset: 2px;
+  }
+
+  &--selected {
+    border: 2px solid $color-border-selected;
+    box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.25);
+  }
+
+  &__tagline {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: $color-border-default;
+    color: $color-text-primary;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__check {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    color: $color-border-selected;
+    background: $color-surface;
+    border-radius: 50%;
+  }
+
+  &__title {
+    margin: 0 0 $space-3;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  &__bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $space-2;
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      gap: $space-2;
+      font-size: $font-size-body;
+      color: $color-text-primary;
+
+      svg {
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: $color-primary;
+      }
+    }
+  }
+}

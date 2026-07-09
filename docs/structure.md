@@ -53,6 +53,14 @@ PROJ-SOKUJI/
 │   ├── utils/                       # Shared utilities incl. environment detection
 │   └── assets/
 │
+├── webapp/                            # Sokuji wrapper web app (independent project, Firebase Hosting target)
+│   └── src/
+│       ├── screens/                  # Login, ModeSelect, SetupWizard, Session, Settings
+│       ├── components/               # ModeCard, StepIndicator, ConversationRow, common/
+│       ├── context/                  # OnboardingContext (mode/languages/devices)
+│       ├── data/                     # Language option lists
+│       └── styles/                   # Design tokens (mirrors docs/spec/themes/wrapper-webapp-tokens.md)
+│
 ├── electron/                         # Electron-specific main process code
 ├── extension/                        # Browser extension specific code
 │   ├── _locales/                    # Extension i18n messages (per locale)

@@ -1,0 +1,40 @@
+@use '../../styles/tokens' as *;
+
+.mode-select {
+  max-width: $max-width-wide;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: $space-6 $space-4;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &__title {
+    margin: 0;
+    text-align: center;
+    font-size: $font-size-title;
+    font-weight: 700;
+  }
+
+  &__subtitle {
+    margin: $space-2 0 0;
+    text-align: center;
+    font-size: $font-size-subtitle;
+    color: $color-text-muted;
+  }
+
+  &__cards {
+    display: flex;
+    justify-content: center;
+    gap: $space-5;
+    margin-top: $space-6;
+    flex-wrap: wrap;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: $space-6;
+  }
+}
