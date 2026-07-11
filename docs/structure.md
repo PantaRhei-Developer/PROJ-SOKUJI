@@ -53,12 +53,12 @@ PROJ-SOKUJI/
 │   ├── utils/                       # Shared utilities incl. environment detection
 │   └── assets/
 │
-├── webapp/                            # Sokuji wrapper web app (independent project, Firebase Hosting target)
+├── webapp/                            # SOKUJI Allo — login + mode-select entry point (independent project, Firebase Hosting target)
 │   └── src/
-│       ├── screens/                  # Login, ModeSelect, SetupWizard, Session, Settings
-│       ├── components/               # ModeCard, StepIndicator, ConversationRow, common/
-│       ├── context/                  # OnboardingContext (mode/languages/devices)
-│       ├── data/                     # Language option lists
+│       ├── screens/                  # Login, ModeSelect only — hands off to the Sokuji Chrome extension, see docs/superpowers/specs/2026-07-11-webapp-extension-handoff-design.md
+│       ├── components/               # ModeCard, common/ (PrimaryButton, BackLink)
+│       ├── context/                  # OnboardingContext (mode only)
+│       ├── lib/                      # extensionHandoff.ts (chrome.runtime.sendMessage to the extension)
 │       └── styles/                   # Design tokens (mirrors docs/spec/themes/wrapper-webapp-tokens.md)
 │
 ├── electron/                         # Electron-specific main process code
