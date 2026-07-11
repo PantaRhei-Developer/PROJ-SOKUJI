@@ -2,7 +2,7 @@
   "name": "sokuji-wrapper-webapp",
   "private": true,
   "version": "0.1.0",
-  "description": "Login-gated onboarding wrapper web app for Sokuji (screens-only phase)",
+  "description": "Login-gated onboarding wrapper web app for Sokuji",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.15",
+    "firebase": "^11.2.0",
     "lucide-react": "^0.515.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

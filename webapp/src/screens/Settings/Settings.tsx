@@ -1,13 +1,22 @@
 import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
 import BackLink from '../../components/common/BackLink';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { useAuth } from '../../context/AuthContext';
+import { auth } from '../../lib/firebase';
 import { languageLabel } from '../../data/languages';
 import { modeLabel } from '../../utils/modeLabel';
 import './Settings.scss';
 
 function Settings() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { mode, spokenLanguage, targetLanguage, microphoneLabel, speakerLabel } = useOnboarding();
+
+  async function handleLogout() {
+    await signOut(auth);
+    navigate('/login');
+  }
 
   return (
     <div className="settings">
@@ -36,6 +45,13 @@ function Settings() {
         </span>
         <button type="button" className="settings__change" onClick={() => navigate('/setup/audio')}>
           変更
+        </button>
+      </div>
+
+      <div className="settings__row">
+        <span>アカウント：{user?.email}</span>
+        <button type="button" className="settings__logout" onClick={handleLogout}>
+          ログアウト
         </button>
       </div>
     </div>

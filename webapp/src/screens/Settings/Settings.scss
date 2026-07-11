@@ -42,4 +42,16 @@
       text-decoration: underline;
     }
   }
+
+  &__logout {
+    background: none;
+    border: none;
+    color: $color-error;
+    cursor: pointer;
+    font-size: $font-size-body;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
