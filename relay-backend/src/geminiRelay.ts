@@ -8,13 +8,11 @@ if (!GEMINI_API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-// NOTE: model name and the Live session's exact message shape should be
-// double-checked against @google/genai's current docs when this is first
-// run for real — the Live API surface has changed across SDK versions and
-// this hasn't been exercised against a live connection yet (see design
-// doc's Decisions: "Gemini Live API confirmed" covers *that* it's needed,
-// not the exact wire format).
-const LIVE_MODEL = 'gemini-2.0-flash-live-001';
+// Confirmed working against a real connection via scripts/test-gemini-live.ts
+// — this API key's available bidiGenerateContent (Live API) models were
+// listed with scripts/list-models.ts; this one is purpose-built for
+// translation, matching this relay's use case.
+const LIVE_MODEL = 'gemini-3.5-live-translate-preview';
 
 /**
  * Proxies audio between the extension's WebSocket connection and a Gemini

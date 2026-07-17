@@ -25,6 +25,8 @@
 | `relay-backend/.env.example` | Documents required environment variables (`GEMINI_API_KEY`, Firebase project config, allowlist/Firestore config) — no real values committed. |
 | `relay-backend/README.md` | How to run locally and deploy, for whoever picks this up next. |
 | `relay-backend/.gitignore` | Excludes `node_modules/`, `dist/`, `.env`. |
+| `relay-backend/scripts/list-models.ts` | One-off script to list which Gemini models this API key can reach with `bidiGenerateContent` (the Live API) — used to find the correct model name. |
+| `relay-backend/scripts/test-gemini-live.ts` | One-off script to confirm a Live API connection succeeds against the real Gemini API, independent of the rest of the relay (auth, allowlist, a real client). |
 | `docs/spec/services/allo-relay-backend.md` | Current-state spec for this service once it exists (request/response contract, auth flow, error cases) — written once the implementation stabilizes, not before. |
 
 ### Modified
@@ -58,7 +60,7 @@
 - [x] Implement `allowlist.ts` against a Firestore collection in `pantarhei-int-sandbox-prd`.
 - [x] Implement `rateLimit.ts` (per-user rate + concurrent-connection cap).
 - [x] Implement `geminiRelay.ts` against Gemini's Live API, using a Google AI Studio key issued under a PantaRhei organization account, read from a `GEMINI_API_KEY` environment variable.
-  - **Note**: not yet exercised against a real Gemini Live connection — the model name (`gemini-2.0-flash-live-001`) and message shape should be double-checked against the current `@google/genai` docs on first real run (flagged in a code comment).
+  - **Model name corrected during implementation**: the initial guess (`gemini-2.0-flash-live-001`) doesn't exist for this API key (`404` on connect). Used `scripts/list-models.ts` to enumerate which models this key can actually reach with `bidiGenerateContent` (the Live API), and switched to `gemini-3.5-live-translate-preview` — purpose-built for translation, and confirmed working end-to-end (setup message received, no errors) via `scripts/test-gemini-live.ts`.
 - [x] Implement `usageLog.ts` (per-user Firestore usage records; no billing logic on top, per the design doc's Non-Goals).
 - [x] Wire it all together in `server.ts`.
   - **Design correction found during implementation**: the design doc originally sketched `Authorization: Bearer <token>` on the WebSocket handshake, but a browser's native `WebSocket` API can't set custom headers — the extension is the client, so this isn't reachable. Switched to sending the ID token as the first message over the socket instead (`{ type: 'auth', idToken }`); the design doc's Architecture section has been updated to match.
