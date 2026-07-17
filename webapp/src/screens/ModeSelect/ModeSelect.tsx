@@ -1,13 +1,26 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import ModeCard from '../../components/ModeCard/ModeCard';
 import PrimaryButton from '../../components/common/PrimaryButton';
 import BackLink from '../../components/common/BackLink';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { sendModeToExtension } from '../../lib/extensionHandoff';
 import './ModeSelect.scss';
 
+const SOKUJI_CHROME_WEB_STORE_URL =
+  'https://chromewebstore.google.com/detail/ppmihnhelgfpjomhjhpecobloelicnak';
+
+type HandoffState = 'idle' | 'sending' | 'delivered' | 'fallback';
+
 function ModeSelect() {
-  const navigate = useNavigate();
   const { mode, setMode } = useOnboarding();
+  const [handoffState, setHandoffState] = useState<HandoffState>('idle');
+
+  async function handleNext() {
+    if (!mode) return;
+    setHandoffState('sending');
+    const result = await sendModeToExtension(mode);
+    setHandoffState(result === 'delivered' ? 'delivered' : 'fallback');
+  }
 
   return (
     <div className="mode-select">
@@ -35,9 +48,24 @@ function ModeSelect() {
         />
       </div>
 
+      {handoffState === 'delivered' && (
+        <p className="mode-select__status mode-select__status--success">
+          拡張機能に設定を送りました。Sokuji拡張機能を開いてください。
+        </p>
+      )}
+      {handoffState === 'fallback' && (
+        <p className="mode-select__status mode-select__status--fallback">
+          Sokuji拡張機能が見つかりませんでした。
+          <a href={SOKUJI_CHROME_WEB_STORE_URL} target="_blank" rel="noreferrer">
+            Chromeウェブストアからインストール
+          </a>
+          してから、もう一度お試しください。
+        </p>
+      )}
+
       <div className="mode-select__footer">
         <BackLink to="/login" />
-        <PrimaryButton disabled={!mode} onClick={() => navigate('/setup/language')}>
+        <PrimaryButton disabled={!mode || handoffState === 'sending'} onClick={handleNext}>
           次へ
         </PrimaryButton>
       </div>
