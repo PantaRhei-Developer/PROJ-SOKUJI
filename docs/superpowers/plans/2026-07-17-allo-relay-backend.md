@@ -24,6 +24,7 @@
 | `relay-backend/Dockerfile` | Container build for Cloud Run deployment. |
 | `relay-backend/.env.example` | Documents required environment variables (`GEMINI_API_KEY`, Firebase project config, allowlist/Firestore config) — no real values committed. |
 | `relay-backend/README.md` | How to run locally and deploy, for whoever picks this up next. |
+| `relay-backend/.gitignore` | Excludes `node_modules/`, `dist/`, `.env`. |
 | `docs/spec/services/allo-relay-backend.md` | Current-state spec for this service once it exists (request/response contract, auth flow, error cases) — written once the implementation stabilizes, not before. |
 
 ### Modified
@@ -52,12 +53,16 @@
 
 ## Steps
 
-- [ ] Scaffold `relay-backend/` (package.json, tsconfig, Dockerfile) as an independent Node/TypeScript project, matching this repo's strict-mode / no-`any` conventions.
-- [ ] Implement `auth.ts` (Firebase ID token verification via Admin SDK).
-- [ ] Implement `allowlist.ts` against a Firestore collection in `pantarhei-int-sandbox-prd`.
-- [ ] Implement `rateLimit.ts` (per-user rate + concurrent-connection cap).
-- [ ] Implement `geminiRelay.ts` against Gemini's Live API, using a Google AI Studio key issued under a PantaRhei organization account, read from Secret Manager via a Cloud Run environment variable.
-- [ ] Implement `usageLog.ts` (per-user Firestore usage records; no billing logic on top, per the design doc's Non-Goals).
+- [x] Scaffold `relay-backend/` (package.json, tsconfig, Dockerfile) as an independent Node/TypeScript project, matching this repo's strict-mode / no-`any` conventions.
+- [x] Implement `auth.ts` (Firebase ID token verification via Admin SDK).
+- [x] Implement `allowlist.ts` against a Firestore collection in `pantarhei-int-sandbox-prd`.
+- [x] Implement `rateLimit.ts` (per-user rate + concurrent-connection cap).
+- [x] Implement `geminiRelay.ts` against Gemini's Live API, using a Google AI Studio key issued under a PantaRhei organization account, read from a `GEMINI_API_KEY` environment variable.
+  - **Note**: not yet exercised against a real Gemini Live connection — the model name (`gemini-2.0-flash-live-001`) and message shape should be double-checked against the current `@google/genai` docs on first real run (flagged in a code comment).
+- [x] Implement `usageLog.ts` (per-user Firestore usage records; no billing logic on top, per the design doc's Non-Goals).
+- [x] Wire it all together in `server.ts`.
+  - **Design correction found during implementation**: the design doc originally sketched `Authorization: Bearer <token>` on the WebSocket handshake, but a browser's native `WebSocket` API can't set custom headers — the extension is the client, so this isn't reachable. Switched to sending the ID token as the first message over the socket instead (`{ type: 'auth', idToken }`); the design doc's Architecture section has been updated to match.
+- [x] `npm install` + `npm run build` (`tsc`) — clean, no type errors.
 - [ ] Deploy to Cloud Run in `pantarhei-int-sandbox-prd`; confirm the WebSocket connection survives a full session (not just the initial handshake).
 - [ ] Manually verify: an allowlisted Firebase-authenticated caller can complete a full translate session end-to-end; a non-allowlisted caller is rejected; an expired/invalid token is rejected.
 - [ ] Write `docs/spec/services/allo-relay-backend.md` reflecting the deployed service's actual contract.
