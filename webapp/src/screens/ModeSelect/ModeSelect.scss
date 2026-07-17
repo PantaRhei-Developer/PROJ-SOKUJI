@@ -9,8 +9,29 @@
   flex-direction: column;
   justify-content: center;
 
+  &__account {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-3;
+    font-size: $font-size-body;
+    color: $color-text-muted;
+  }
+
+  &__logout {
+    background: none;
+    border: none;
+    color: $color-error;
+    cursor: pointer;
+    font-size: $font-size-body;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   &__title {
-    margin: 0;
+    margin: $space-5 0 0;
     text-align: center;
     font-size: $font-size-title;
     font-weight: 700;

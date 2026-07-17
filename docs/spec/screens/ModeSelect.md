@@ -3,13 +3,14 @@
 **Route**: `/mode-select`
 **Tokens**: [wrapper-webapp-tokens](../themes/wrapper-webapp-tokens.md)
 **Components**: [ModeCard](../components/ModeCard.md)
-**Status**: This is the last screen in `webapp/` — see the [2026-07-11 extension handoff design doc](../../superpowers/specs/2026-07-11-webapp-extension-handoff-design.md) for why. There is no setup wizard, session, or settings screen in this project anymore; the Sokuji Chrome extension owns all of that.
+**Status**: This is the last screen in `webapp/` — see the [2026-07-11 extension handoff design doc](../../superpowers/specs/2026-07-11-webapp-extension-handoff-design.md) for why. There is no setup wizard, session, or settings screen in this project anymore; the Sokuji Chrome extension owns all of that. The route is wrapped in `RequireAuth` — an unauthenticated visitor is redirected to `/login` before this screen ever renders.
 
 ## Layout
 
 Column vertically and horizontally centered in the viewport (`min-height: 100vh`, flex column, `justify-content: center`), max-width 640px.
 
-1. Title, 24px bold, centered: "翻訳方式を選んでください"
+0. Account row, flex row, right-aligned, 14px muted text: the signed-in user's email, followed by a "ログアウト" text link (`color.error`, hover underline).
+1. Title, 24px bold, centered, `space-5` top margin below the account row: "翻訳方式を選んでください"
 2. Subtitle, 14px muted, centered, 8px below the title: "設定は後から変更できます。"
 3. Two [ModeCard](../components/ModeCard.md) instances in a flex row, 24px gap, 32px top margin, wrapping to a column below a 640px viewport width. Neither card is marked as superior — both get a neutral tagline badge stating their core trade-off, not a value judgment:
    - **ローカルモデル** — tagline `"無料・高速"`, bullets `["無料", "高速レスポンス", "初回起動時に約4GBのダウンロードが必要"]`
@@ -23,11 +24,13 @@ Column vertically and horizontally centered in the viewport (`min-height: 100vh`
 
 ## Navigation
 
+- "ログアウト" → calls `signOut(auth)` (see `webapp/src/lib/firebase.ts`), then navigates to [`/login`](Login.md).
 - "← 戻る" → [`/login`](Login.md)
 - "次へ" (enabled only after a card is selected) → calls `sendModeToExtension(mode)` (see `webapp/src/lib/extensionHandoff.ts`). This does **not** navigate anywhere within `webapp/` — there is nowhere left to go. On a successful handoff the extension opens its own UI independently; `webapp/` only shows the success/fallback status message described above.
 
 ## Data & state
 
+- Authenticated user (see `webapp/src/context/AuthContext.tsx`) — only its `email` is read, for the account row.
 - Shared onboarding state `mode: 'local' | 'api' | null` (see `webapp/src/context/OnboardingContext.tsx`), initialized to `null`.
 - Selecting a card sets `mode` to that card's value; selecting the other card replaces it (single-select, not independent toggles).
 - Local screen state `handoffState: 'idle' | 'sending' | 'delivered' | 'fallback'`, drives the status message and the "次へ" button's disabled state while `'sending'`.

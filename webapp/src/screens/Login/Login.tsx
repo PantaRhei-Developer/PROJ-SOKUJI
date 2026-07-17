@@ -1,4 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { signInWithPopup } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import { auth, googleProvider } from '../../lib/firebase';
+import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.scss';
 
@@ -27,6 +32,35 @@ function GoogleMark() {
 
 function Login() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/mode-select', { replace: true });
+    }
+  }, [loading, user, navigate]);
+
+  async function handleSignIn() {
+    setError(null);
+    setIsSigningIn(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      navigate('/mode-select');
+    } catch (err) {
+      if (err instanceof FirebaseError && err.code === 'auth/popup-closed-by-user') {
+        // User cancelled — not an error worth surfacing.
+      } else if (err instanceof FirebaseError && err.code === 'auth/popup-blocked') {
+        setError('ポップアップがブロックされました。ブラウザの設定を確認してください。');
+      } else {
+        console.error('[SOKUJI Allo] Google sign-in failed:', err);
+        setError('ログインできませんでした。もう一度お試しください。');
+      }
+    } finally {
+      setIsSigningIn(false);
+    }
+  }
 
   return (
     <div className="login">
@@ -36,10 +70,11 @@ function Login() {
           <span className="login__name">SOKUJI Allo</span>
         </div>
         <p className="login__tagline">設定不要のリアルタイム翻訳。</p>
-        <button type="button" className="login__google-button" onClick={() => navigate('/mode-select')}>
+        <button type="button" className="login__google-button" onClick={handleSignIn} disabled={isSigningIn}>
           <GoogleMark />
           <span>Googleでログイン</span>
         </button>
+        {error && <p className="login__error">{error}</p>}
         <p className="login__footer">
           <a href="#">利用規約</a> · <a href="#">プライバシーポリシー</a>
         </p>

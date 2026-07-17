@@ -1,0 +1,10 @@
+@use '../../styles/tokens' as *;
+
+.require-auth__loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-muted;
+  font-size: $font-size-body;
+}

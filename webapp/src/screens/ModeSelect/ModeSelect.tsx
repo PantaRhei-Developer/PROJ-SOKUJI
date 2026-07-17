@@ -1,8 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
 import ModeCard from '../../components/ModeCard/ModeCard';
 import PrimaryButton from '../../components/common/PrimaryButton';
 import BackLink from '../../components/common/BackLink';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { useAuth } from '../../context/AuthContext';
+import { auth } from '../../lib/firebase';
 import { sendModeToExtension } from '../../lib/extensionHandoff';
 import './ModeSelect.scss';
 
@@ -12,6 +16,8 @@ const SOKUJI_CHROME_WEB_STORE_URL =
 type HandoffState = 'idle' | 'sending' | 'delivered' | 'fallback';
 
 function ModeSelect() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { mode, setMode } = useOnboarding();
   const [handoffState, setHandoffState] = useState<HandoffState>('idle');
 
@@ -22,8 +28,19 @@ function ModeSelect() {
     setHandoffState(result === 'delivered' ? 'delivered' : 'fallback');
   }
 
+  async function handleLogout() {
+    await signOut(auth);
+    navigate('/login');
+  }
+
   return (
     <div className="mode-select">
+      <div className="mode-select__account">
+        <span>{user?.email}</span>
+        <button type="button" className="mode-select__logout" onClick={handleLogout}>
+          ログアウト
+        </button>
+      </div>
       <h1 className="mode-select__title">翻訳方式を選んでください</h1>
       <p className="mode-select__subtitle">設定は後から変更できます。</p>
 

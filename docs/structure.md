@@ -56,9 +56,9 @@ PROJ-SOKUJI/
 ├── webapp/                            # SOKUJI Allo — login + mode-select entry point (independent project, Firebase Hosting target)
 │   └── src/
 │       ├── screens/                  # Login, ModeSelect only — hands off to the Sokuji Chrome extension, see docs/superpowers/specs/2026-07-11-webapp-extension-handoff-design.md
-│       ├── components/               # ModeCard, common/ (PrimaryButton, BackLink)
-│       ├── context/                  # OnboardingContext (mode only)
-│       ├── lib/                      # extensionHandoff.ts (chrome.runtime.sendMessage to the extension)
+│       ├── components/               # ModeCard, common/ (PrimaryButton, BackLink, RequireAuth)
+│       ├── context/                  # OnboardingContext (mode only), AuthContext (Firebase auth state)
+│       ├── lib/                      # extensionHandoff.ts (chrome.runtime.sendMessage to the extension), firebase.ts
 │       └── styles/                   # Design tokens (mirrors docs/spec/themes/wrapper-webapp-tokens.md)
 │
 ├── electron/                         # Electron-specific main process code
