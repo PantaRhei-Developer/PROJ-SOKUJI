@@ -9,8 +9,29 @@
   flex-direction: column;
   justify-content: center;
 
+  &__account {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-3;
+    font-size: $font-size-body;
+    color: $color-text-muted;
+  }
+
+  &__logout {
+    background: none;
+    border: none;
+    color: $color-error;
+    cursor: pointer;
+    font-size: $font-size-body;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   &__title {
-    margin: 0;
+    margin: $space-5 0 0;
     text-align: center;
     font-size: $font-size-title;
     font-weight: 700;
@@ -36,5 +57,29 @@
     align-items: center;
     justify-content: space-between;
     margin-top: $space-6;
+  }
+
+  &__status {
+    margin: $space-5 0 0;
+    text-align: center;
+    font-size: $font-size-body;
+    padding: $space-3 $space-4;
+    border-radius: $radius-button;
+
+    &--success {
+      color: $color-primary;
+      background: rgba(16, 163, 127, 0.1);
+    }
+
+    &--fallback {
+      color: $color-error;
+      background: rgba(231, 76, 60, 0.1);
+
+      a {
+        color: inherit;
+        font-weight: 600;
+        text-decoration: underline;
+      }
+    }
   }
 }
