@@ -39,6 +39,23 @@ const ENABLED_SITES = [
   'meet.jit.si'
 ];
 
+// Origins for the SOKUJI Allo webapp (must match manifest.json's
+// externally_connectable.matches, minus the trailing /*). Tabs on these
+// origins also need the side panel explicitly enabled — otherwise the
+// extension handoff listener's chrome.sidePanel.open() call fails with
+// "No active side panel for tab" (see the tabs.onUpdated/onActivated
+// listeners below, which disable the side panel for any tab not covered
+// by ENABLED_SITES).
+const SOKUJI_ALLO_ORIGINS = [
+  'https://pantarhei-int-sandbox-prd.web.app',
+  'https://pantarhei-int-sandbox-prd.firebaseapp.com',
+  'http://localhost:5174',
+];
+
+function isSokujiAlloOrigin(url) {
+  return SOKUJI_ALLO_ORIGINS.includes(url.origin);
+}
+
 // Track which tabs have the side panel open
 const tabsWithSidePanelOpen = new Set();
 
@@ -158,6 +175,17 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       // setPanelBehavior({ openPanelOnActionClick: true }) path).
       await chrome.action.setPopup({ tabId: tabId, popup: '' });
       console.debug('[Sokuji] [Background] Enabled side panel (onClicked mode) for site:', url.hostname);
+    } else if (isSokujiAlloOrigin(url)) {
+      // The SOKUJI Allo webapp tab needs the side panel enabled too, so the
+      // extension handoff listener's chrome.sidePanel.open() call succeeds.
+      // No query params needed here (those are for meeting-site virtual-mic
+      // detection, irrelevant to this handoff).
+      await chrome.sidePanel.setOptions({
+        tabId: tabId,
+        path: 'fullpage.html',
+        enabled: true,
+      });
+      console.debug('[Sokuji] [Background] Enabled side panel for SOKUJI Allo webapp tab:', tabId);
     } else {
       // Disable side panel for this tab and restore the popup
       await chrome.sidePanel.setOptions({
@@ -194,6 +222,13 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
       });
       await chrome.action.setPopup({ tabId: tabId, popup: '' });
       console.debug('[Sokuji] [Background] Maintaining side panel (onClicked mode) for supported site:', url.hostname);
+    } else if (isSokujiAlloOrigin(url)) {
+      await chrome.sidePanel.setOptions({
+        tabId: tabId,
+        path: 'fullpage.html',
+        enabled: true,
+      });
+      console.debug('[Sokuji] [Background] Maintaining side panel for SOKUJI Allo webapp tab:', tabId);
     } else {
       // Reset the GLOBAL default to disabled so any currently-open side panel
       // actually closes when the user switches to an unsupported tab. Per-tab
@@ -557,6 +592,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleStopTabCapture(message.tabId || sender.tab?.id).then(sendResponse);
     return true; // Indicates async response
   }
+});
+
+// Handle the SOKUJI Allo webapp's extension handoff (see
+// docs/superpowers/specs/2026-07-17-extension-handoff-listener-design.md).
+//
+// chrome.sidePanel.open() may only be called in response to a user gesture,
+// and any await before it drops that gesture (same constraint as the
+// chrome.action.onClicked handler above) — so it must be the very first
+// thing this listener does, before the storage write below.
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  if (message?.type !== 'sokuji-allo/set-mode') return;
+  if (message.mode !== 'local' && message.mode !== 'api') return;
+  if (!sender.tab?.id) return;
+
+  chrome.sidePanel.open({ tabId: sender.tab.id }).then(async () => {
+    // 'api' mode has no working backend-managed provider yet (tracked in
+    // docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md), so it
+    // only opens the side panel for now — it does not change the provider.
+    if (message.mode === 'local') {
+      await chrome.storage.sync.set({ 'settings.common.provider': 'local_inference' });
+    }
+    sendResponse({ success: true });
+  }).catch((error) => {
+    console.error('[Sokuji] [Background] Error handling SOKUJI Allo handoff:', error);
+    sendResponse({ success: false, error: error.message });
+  });
+
+  return true; // Indicates async response
 });
 
 // Get configuration value
