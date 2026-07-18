@@ -559,6 +559,39 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Handle the SOKUJI Allo webapp's extension handoff (see
+// docs/superpowers/specs/2026-07-17-extension-handoff-listener-design.md).
+//
+// chrome.sidePanel.open() may only be called in response to a user gesture,
+// and any await before it drops that gesture (same constraint as the
+// chrome.action.onClicked handler above) — so it must be the very first
+// thing this listener does, before the storage write below.
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  if (message?.type !== 'sokuji-allo/set-mode') return;
+  if (message.mode !== 'local' && message.mode !== 'api') return;
+
+  (async () => {
+    // 'api' mode has no working backend-managed provider yet (tracked in
+    // docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md), so it
+    // only opens a confirmation tab for now — it does not change the provider.
+    if (message.mode === 'local') {
+      await chrome.storage.sync.set({ 'settings.common.provider': 'local_inference' });
+    }
+    // A normal tab (not the side panel) — the side panel is tab-scoped and
+    // would disappear if the webapp tab that triggered this handoff gets
+    // closed. Real usage opens the side panel from the meeting tab itself
+    // (via the action icon), same as always; this tab is just confirmation
+    // that the handoff worked.
+    await chrome.tabs.create({ url: chrome.runtime.getURL('fullpage.html') });
+    sendResponse({ success: true });
+  })().catch((error) => {
+    console.error('[Sokuji] [Background] Error handling SOKUJI Allo handoff:', error);
+    sendResponse({ success: false, error: error.message });
+  });
+
+  return true; // Indicates async response
+});
+
 // Get configuration value
 async function handleGetConfig(key, defaultValue) {
   try {

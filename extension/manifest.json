@@ -23,6 +23,13 @@
   "side_panel": {
     "default_path": "fullpage.html"
   },
+  "externally_connectable": {
+    "matches": [
+      "https://pantarhei-int-sandbox-prd.web.app/*",
+      "https://pantarhei-int-sandbox-prd.firebaseapp.com/*",
+      "http://localhost:5174/*"
+    ]
+  },
   "permissions": [
     "storage",
     "sidePanel",
