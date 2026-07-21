@@ -148,6 +148,23 @@ export function getRelayWsUrl(): string {
 }
 
 /**
+ * Get the WebSocket URL for PantaRhei's own SOKUJI Allo relay backend
+ * (see docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md).
+ * Distinct from getRelayWsUrl() above, which points at Kizuna's relay —
+ * conflating the two would send PantaRhei Gemini traffic to Kizuna's server.
+ *
+ * Unlike VITE_BACKEND_URL, there's no stable production default to fall
+ * back to yet, so this throws rather than silently pointing nowhere.
+ */
+export function getPantarheiRelayWsUrl(): string {
+  const base = import.meta.env.VITE_PANTARHEI_BACKEND_URL;
+  if (!base) {
+    throw new Error('VITE_PANTARHEI_BACKEND_URL is not set');
+  }
+  return base.replace(/\/$/, "").replace(/^http:/, "ws:").replace(/^https:/, "wss:");
+}
+
+/**
  * Check if running in development mode
  * @returns true if in development mode
  */
