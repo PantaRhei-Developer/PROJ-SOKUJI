@@ -326,6 +326,14 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({
           icon: KizunaAIIcon,
           description: t('providers.local_inference.description', 'Offline ASR + Translation + TTS')
         };
+      case Provider.PANTARHEI_GEMINI:
+        // Relay-managed twin of Gemini. Locale strings not yet added;
+        // English fallbacks keep the dropdown label usable (follow-up: i18n).
+        return {
+          name: t('providers.pantarhei_gemini.name', 'PantaRhei Gemini'),
+          icon: GeminiIcon,
+          description: t('providers.pantarhei_gemini.description', 'Real-time translation, authenticated via SOKUJI Allo')
+        };
       default:
         return {
           name: t('providers.unknown.name'),

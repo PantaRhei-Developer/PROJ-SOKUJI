@@ -15,7 +15,7 @@ import {
 import useSettingsStore from '../../stores/settingsStore';
 import { useModelStatuses, useModelInitialized, useModelStore } from '../../stores/modelStore';
 import { useAuth } from '../../lib/auth/hooks';
-import { Provider, isKizunaManagedProvider } from '../../types/Provider';
+import { Provider, isKizunaManagedProvider, isPantarheiManagedProvider } from '../../types/Provider';
 import { getEdgeTtsVoices, filterVoicesByLanguage } from '../../lib/edge-tts/voiceList';
 
 /**
@@ -95,9 +95,13 @@ export function SettingsInitializer() {
   // ── API providers: validate when provider changes or credentials change ──
   useEffect(() => {
     if (!settingsLoaded) return;
-    // Skip LOCAL_INFERENCE (handled by the next effect) and Kizuna-managed
-    // providers (handled above)
-    if (provider === Provider.LOCAL_INFERENCE || isKizunaManagedProvider(provider)) return;
+    // Skip LOCAL_INFERENCE (handled by the next effect), Kizuna-managed
+    // providers (handled above), and PantaRhei Gemini — its ID token is
+    // already stored by the time the extension flips the provider setting
+    // (see extension/background/background.js's onMessageExternal
+    // listener), so there's nothing here to fetch/validate; ClientFactory
+    // reads the stored token directly when a session actually starts.
+    if (provider === Provider.LOCAL_INFERENCE || isKizunaManagedProvider(provider) || isPantarheiManagedProvider(provider)) return;
 
     prevProviderRef.current = provider;
 

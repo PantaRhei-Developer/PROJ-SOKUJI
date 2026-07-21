@@ -1590,6 +1590,8 @@ const useSettingsStore = create<SettingsStore>()(
           return state.kizunaVolcengineAst2;
         case Provider.LOCAL_INFERENCE:
           return state.localInference;
+        case Provider.PANTARHEI_GEMINI:
+          return state.gemini;
         default:
           return state.openai;
       }
@@ -1824,6 +1826,7 @@ export const useCurrentTurnDetectionMode = (): string => useSettingsStore((state
     case Provider.OPENAI: return state.openai.turnDetectionMode;
     case Provider.OPENAI_COMPATIBLE: return state.openaiCompatible.turnDetectionMode;
     case Provider.GEMINI: return state.gemini.turnDetectionMode;
+    case Provider.PANTARHEI_GEMINI: return state.gemini.turnDetectionMode;
     case Provider.VOLCENGINE_AST2: return state.volcengineAST2.turnDetectionMode;
     case Provider.KIZUNA_AI_VOLCENGINE_AST2: return state.kizunaVolcengineAst2.turnDetectionMode;
     // KIZUNA_AI_OPENAI_TRANSLATE has no turn detection (translate), like

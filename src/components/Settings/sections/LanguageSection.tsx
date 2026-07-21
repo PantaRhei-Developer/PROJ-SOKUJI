@@ -149,6 +149,10 @@ const LanguageSection: React.FC<LanguageSectionProps> = ({
         return kizunaVolcengineAst2Settings;
       case Provider.LOCAL_INFERENCE:
         return localInferenceSettings;
+      case Provider.PANTARHEI_GEMINI:
+        // Reuses the plain Gemini settings slice — see settingsStore.ts's
+        // createSessionConfig for why this provider has no dedicated slice.
+        return geminiSettings;
       default:
         return openAISettings;
     }
@@ -221,6 +225,9 @@ const LanguageSection: React.FC<LanguageSectionProps> = ({
         updateLocalInferenceSettings(updates);
         break;
       }
+      case Provider.PANTARHEI_GEMINI:
+        updateGeminiSettings({ sourceLanguage: value });
+        break;
     }
     trackEvent('language_changed', {
       to_language: value,
@@ -282,6 +289,9 @@ const LanguageSection: React.FC<LanguageSectionProps> = ({
       }
       case Provider.LOCAL_INFERENCE:
         updateLocalInferenceSettings({ targetLanguage: value });
+        break;
+      case Provider.PANTARHEI_GEMINI:
+        updateGeminiSettings({ targetLanguage: value });
         break;
     }
     trackEvent('language_changed', {
