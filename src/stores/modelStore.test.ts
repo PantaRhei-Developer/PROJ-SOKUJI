@@ -5,6 +5,7 @@ const mockGetManifestEntry = vi.fn();
 const mockGetAsrModelsForLanguage = vi.fn();
 const mockGetTranslationModel = vi.fn();
 const mockGetManifestByType = vi.fn();
+const mockGetTtsModelsForLanguage = vi.fn();
 
 vi.mock('../lib/local-inference/modelManifest', () => ({
   MODEL_MANIFEST: [],
@@ -12,8 +13,18 @@ vi.mock('../lib/local-inference/modelManifest', () => ({
   getManifestByType: (...args: any[]) => mockGetManifestByType(...args),
   getAsrModelsForLanguage: (...args: any[]) => mockGetAsrModelsForLanguage(...args),
   getTranslationModel: (...args: any[]) => mockGetTranslationModel(...args),
-  getTtsModelsForLanguage: vi.fn(() => []),
+  getTtsModelsForLanguage: (...args: any[]) => mockGetTtsModelsForLanguage(...args),
   isTranslationModelCompatible: vi.fn(() => true),
+  isAstCompatible: vi.fn(() => false),
+  // Same ranking as the real implementation: recommended first, then lower sortOrder.
+  pickBestModel: (candidates: any[]) => {
+    if (candidates.length === 0) return undefined;
+    return candidates.reduce((best, m) => {
+      if (m.recommended && !best.recommended) return m;
+      if (!m.recommended && best.recommended) return best;
+      return (m.sortOrder ?? 0) < (best.sortOrder ?? 0) ? m : best;
+    });
+  },
 }));
 
 vi.mock('../lib/local-inference/modelStorage', () => ({
@@ -225,5 +236,58 @@ describe('rememberModels / recallModels', () => {
     expect(recalled!.asrModel).toBe('');
     expect(recalled!.translationModel).toBe('');
     expect(recalled!.ttsModel).toBe('');
+  });
+});
+
+describe('getMissingModelsForLanguagePair', () => {
+  const sensevoice = { id: 'sensevoice-int8', type: 'asr', languages: ['ja', 'en'], multilingual: true, recommended: true, sortOrder: 0 };
+  const opusMtJaEn = { id: 'opus-mt-ja-en', type: 'translation', languages: ['ja', 'en'], sourceLang: 'ja', targetLang: 'en' };
+  const edgeTts = { id: 'edge-tts-en', type: 'tts', languages: ['en'], multilingual: false, isCloudModel: true };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetTtsModelsForLanguage.mockReturnValue([]);
+    useModelStore.setState({ modelStatuses: {}, webgpuAvailable: true });
+  });
+
+  it('returns everything needed when nothing is downloaded yet', () => {
+    mockGetAsrModelsForLanguage.mockReturnValue([sensevoice]);
+    mockGetTranslationModel.mockReturnValue(opusMtJaEn);
+    mockGetTtsModelsForLanguage.mockReturnValue([edgeTts]);
+
+    const result = useModelStore.getState().getMissingModelsForLanguagePair('ja', 'en');
+
+    expect(result.asr?.id).toBe('sensevoice-int8');
+    expect(result.translation?.id).toBe('opus-mt-ja-en');
+    // Cloud TTS needs no download, so it's not "missing" even though nothing downloaded.
+    expect(result.tts).toBeUndefined();
+    expect(result.noCompatibleModel).toBe(false);
+  });
+
+  it('returns nothing missing once everything is downloaded or cloud', () => {
+    mockGetAsrModelsForLanguage.mockReturnValue([sensevoice]);
+    mockGetTranslationModel.mockReturnValue(opusMtJaEn);
+    mockGetTtsModelsForLanguage.mockReturnValue([edgeTts]);
+    useModelStore.setState({
+      modelStatuses: { 'sensevoice-int8': 'downloaded', 'opus-mt-ja-en': 'downloaded' },
+    });
+
+    const result = useModelStore.getState().getMissingModelsForLanguagePair('ja', 'en');
+
+    expect(result.asr).toBeUndefined();
+    expect(result.translation).toBeUndefined();
+    expect(result.tts).toBeUndefined();
+    expect(result.noCompatibleModel).toBe(false);
+  });
+
+  it('flags noCompatibleModel when no translation model exists for the pair', () => {
+    mockGetAsrModelsForLanguage.mockReturnValue([sensevoice]);
+    mockGetTranslationModel.mockReturnValue(undefined);
+    mockGetTtsModelsForLanguage.mockReturnValue([edgeTts]);
+
+    const result = useModelStore.getState().getMissingModelsForLanguagePair('ja', 'xx');
+
+    expect(result.translation).toBeUndefined();
+    expect(result.noCompatibleModel).toBe(true);
   });
 });

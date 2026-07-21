@@ -19,6 +19,7 @@ import {
   isAstCompatible,
   pickBestModel,
   type ModelStatus,
+  type ModelManifestEntry,
 } from '../lib/local-inference/modelManifest';
 import * as modelStorage from '../lib/local-inference/modelStorage';
 import { checkWebGPU } from '../utils/webgpu';
@@ -101,6 +102,28 @@ interface ModelStoreState {
     sourceLang: string, targetLang: string,
     currentAsrModel: string, currentTranslationModel: string, currentTtsModel: string,
   ) => { asrModel?: string; translationModel?: string; ttsModel?: string } | null;
+
+  /**
+   * Resolve which model types (ASR/translation/TTS) still need downloading
+   * for a language pair to become ready — i.e. neither already downloaded
+   * nor a cloud model that needs no download. Unlike autoSelectModels
+   * (which only re-validates an existing selection among already-downloaded
+   * models), this picks the recommended candidate to download when nothing
+   * suitable is downloaded yet. Used by the "download everything and start"
+   * quick-start flow.
+   */
+  getMissingModelsForLanguagePair: (sourceLang: string, targetLang: string) => {
+    asr?: ModelManifestEntry;
+    translation?: ModelManifestEntry;
+    tts?: ModelManifestEntry;
+    /**
+     * True when at least one required type has literally no compatible
+     * model in the manifest for this pair (a genuinely exotic language
+     * combination) — distinct from "a compatible model exists but isn't
+     * downloaded yet", which is what asr/translation/tts above represent.
+     */
+    noCompatibleModel: boolean;
+  };
   /** Save model selection for a language pair */
   rememberModels: (sourceLang: string, targetLang: string, asrModel: string, translationModel: string, ttsModel: string) => void;
   /** Recall saved model selection — per-field degradation if models deleted */
@@ -524,6 +547,51 @@ export const useModelStore = create<ModelStoreState>()(
       return Object.keys(updates).length > 0 ? updates : null;
     },
 
+    getMissingModelsForLanguagePair: (sourceLang, targetLang) => {
+      const { modelStatuses, webgpuAvailable } = get();
+      const result: {
+        asr?: ModelManifestEntry;
+        translation?: ModelManifestEntry;
+        tts?: ModelManifestEntry;
+        noCompatibleModel: boolean;
+      } = { noCompatibleModel: false };
+
+      const asrCandidates = getAsrModelsForLanguage(sourceLang)
+        .filter(m => !(m.requiredDevice === 'webgpu' && !webgpuAvailable));
+      const hasAsr = asrCandidates.some(m => modelStatuses[m.id] === 'downloaded');
+      if (!hasAsr) {
+        const best = pickBestModel(asrCandidates);
+        if (best) {
+          result.asr = best;
+        } else {
+          result.noCompatibleModel = true;
+        }
+      }
+
+      const translationEntry = getTranslationModel(sourceLang, targetLang);
+      const translationReady = !!translationEntry
+        && (translationEntry.isCloudModel || modelStatuses[translationEntry.id] === 'downloaded')
+        && !(translationEntry.requiredDevice === 'webgpu' && !webgpuAvailable);
+      if (!translationEntry) {
+        result.noCompatibleModel = true;
+      } else if (!translationReady) {
+        result.translation = translationEntry;
+      }
+
+      const ttsCandidates = getTtsModelsForLanguage(targetLang);
+      const hasTts = ttsCandidates.some(m => m.isCloudModel || modelStatuses[m.id] === 'downloaded');
+      if (!hasTts) {
+        const best = pickBestModel(ttsCandidates.filter(m => !m.isCloudModel));
+        if (best) {
+          result.tts = best;
+        } else {
+          result.noCompatibleModel = true;
+        }
+      }
+
+      return result;
+    },
+
     rememberModels: (src, tgt, asr, translation, tts) => {
       set(state => ({
         modelPreferences: {
@@ -565,6 +633,7 @@ export const useDownloadErrors = () => useModelStore(s => s.downloadErrors);
 export const useStorageUsedMb = () => useModelStore(s => s.storageUsedMb);
 export const useModelInitialized = () => useModelStore(s => s.initialized);
 export const useIsProviderReady = () => useModelStore(s => s.isProviderReady);
+export const useGetMissingModelsForLanguagePair = () => useModelStore(s => s.getMissingModelsForLanguagePair);
 export const useWebGPUAvailable = () => useModelStore(s => s.webgpuAvailable);
 export const useDeviceFeatures = () => useModelStore(s => s.deviceFeatures);
 export const useModelVariants = () => useModelStore(s => s.modelVariants);
