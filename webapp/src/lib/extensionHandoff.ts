@@ -5,6 +5,7 @@ const HANDOFF_TIMEOUT_MS = 800;
 interface SetModeMessage {
   type: 'sokuji-allo/set-mode';
   mode: 'local' | 'api';
+  idToken: string;
 }
 
 // chrome.runtime.sendMessage to an extension ID with no listening extension
@@ -15,7 +16,7 @@ interface ChromeRuntime {
   lastError?: { message?: string };
 }
 
-export function sendModeToExtension(mode: 'local' | 'api'): Promise<ExtensionHandoffResult> {
+export function sendModeToExtension(mode: 'local' | 'api', idToken: string): Promise<ExtensionHandoffResult> {
   const extensionId = import.meta.env.VITE_SOKUJI_EXTENSION_ID;
   const runtime = (globalThis as { chrome?: { runtime?: ChromeRuntime } }).chrome?.runtime;
 
@@ -23,7 +24,7 @@ export function sendModeToExtension(mode: 'local' | 'api'): Promise<ExtensionHan
     return Promise.resolve('no-extension');
   }
 
-  const message: SetModeMessage = { type: 'sokuji-allo/set-mode', mode };
+  const message: SetModeMessage = { type: 'sokuji-allo/set-mode', mode, idToken };
 
   return new Promise((resolve) => {
     let settled = false;
