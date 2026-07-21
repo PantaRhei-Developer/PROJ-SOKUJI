@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_KEY?: string;
   readonly VITE_POSTHOG_HOST?: string;
   readonly VITE_ENABLE_KIZUNA_AI?: string;
+  readonly VITE_ENABLE_PANTARHEI_GEMINI?: string;
 }
 
 interface ImportMeta {

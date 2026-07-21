@@ -199,6 +199,21 @@ export function isKizunaAIEnabled(): boolean {
 }
 
 /**
+ * Check if the PantaRhei Gemini relay provider should be enabled
+ * @returns true if it should be shown
+ *
+ * In development mode: always returns true
+ * In production mode: returns false (unless explicitly enabled via VITE_ENABLE_PANTARHEI_GEMINI env var)
+ */
+export function isPantarheiGeminiEnabled(): boolean {
+  if (isDevelopmentMode()) {
+    return true;
+  }
+
+  return import.meta.env.VITE_ENABLE_PANTARHEI_GEMINI === 'true';
+}
+
+/**
  * Check if Palabra AI features should be enabled
  * @returns true if Palabra AI features should be shown
  *
