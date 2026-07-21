@@ -107,7 +107,7 @@ function LocalInferenceQuickStart({ sourceLanguage, targetLanguage, onNavigateTo
     <div className="local-inference-quick-start">
       {!isDownloading && (
         <p className="quick-start-description">
-          {t('localInferenceQuickStart.description', 'This language pair needs a one-time download (~{{size}}MB) before it can be used.', { size: totalMb })}
+          {t('settings.localInferenceQuickStart.description', 'This language pair needs a one-time download (~{{size}}MB) before it can be used.', { size: totalMb })}
         </p>
       )}
       {error && <p className="quick-start-error">{error}</p>}
@@ -115,12 +115,12 @@ function LocalInferenceQuickStart({ sourceLanguage, targetLanguage, onNavigateTo
         {isDownloading ? (
           <>
             <Loader size={14} className="spinner" />
-            <span>{t('localInferenceQuickStart.downloading', 'Downloading... {{percent}}%', { percent: combinedPercent })}</span>
+            <span>{t('settings.localInferenceQuickStart.downloading', 'Downloading... {{percent}}%', { percent: combinedPercent })}</span>
           </>
         ) : (
           <>
             <Download size={14} />
-            <span>{t('localInferenceQuickStart.button', 'Download and get started')}</span>
+            <span>{t('settings.localInferenceQuickStart.button', 'Download and get started')}</span>
           </>
         )}
       </button>

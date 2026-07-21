@@ -269,6 +269,11 @@
     "modelTypeAsr": "音声認識（ASR）",
     "modelTypeTranslation": "翻訳",
     "modelTypeTts": "音声合成（TTS）",
+    "localInferenceQuickStart": {
+      "description": "この言語ペアを使うには、初回だけダウンロードが必要です（約{{size}}MB）。",
+      "downloading": "ダウンロード中...（{{percent}}%）",
+      "button": "ダウンロードして始める"
+    },
     "reasoningEffort": "推論レベル",
     "reasoningEffortTooltip": "応答前にモデルがどれだけ熟考するかを制御します。高いレベルは複雑なタスクで良い結果を生みますが、遅延とコストが増加します。リアルタイム翻訳には low を推奨。gpt-realtime-2 のみ対応。",
     "reasoningEffortOptions": {
