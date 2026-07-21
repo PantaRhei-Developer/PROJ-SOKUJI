@@ -1686,6 +1686,14 @@ const useSettingsStore = create<SettingsStore>()(
         case Provider.LOCAL_INFERENCE:
           config = createLocalInferenceSessionConfig(state.localInference, systemInstructions);
           break;
+        case Provider.PANTARHEI_GEMINI:
+          // Reuses the plain Gemini language/voice settings rather than a
+          // dedicated settings slice — this provider isn't configured
+          // through the Settings UI at all (it's set via the SOKUJI Allo
+          // webapp handoff), so a separate slice would have no UI to edit
+          // it and would just duplicate state.gemini's shape.
+          config = createGeminiSessionConfig(state.gemini, systemInstructions);
+          break;
         default:
           config = createOpenAISessionConfig(state.openai, systemInstructions);
       }
