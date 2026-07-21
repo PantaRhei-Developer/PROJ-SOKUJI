@@ -1162,6 +1162,34 @@ const useSettingsStore = create<SettingsStore>()(
       const state = get();
       const provider = state.provider;
 
+      // PantaRhei Gemini: "valid" means the extension has a stored Firebase
+      // ID token from the SOKUJI Allo webapp handoff — there's no API key
+      // to check, and no live session to query the way Kizuna's Better
+      // Auth getToken() call does. Without this early return,
+      // isApiKeyValid stays at its initial `null` forever for this
+      // provider (nothing else ever sets it), permanently disabling Start.
+      if (provider === Provider.PANTARHEI_GEMINI) {
+        const hasToken = await new Promise<boolean>((resolve) => {
+          if (typeof chrome === 'undefined' || !chrome?.storage?.local) {
+            resolve(false);
+            return;
+          }
+          chrome.storage.local.get('pantarheiGemini.idToken', (result: Record<string, any>) => {
+            resolve(!!result['pantarheiGemini.idToken']);
+          });
+        });
+        const message = hasToken ? '' : 'Complete the SOKUJI Allo handoff to use this provider';
+        set({
+          isApiKeyValid: hasToken,
+          availableModels: hasToken
+            ? [{ id: 'gemini-3.5-live-translate-preview', type: 'realtime' as const, created: 0 }]
+            : [],
+          validationMessage: message,
+          isValidating: false,
+        });
+        return { valid: hasToken, message, validating: false };
+      }
+
       // Local inference: check model readiness instead of API key.
       // This is the SINGLE authority for LOCAL_INFERENCE session readiness.
       if (provider === Provider.LOCAL_INFERENCE) {
