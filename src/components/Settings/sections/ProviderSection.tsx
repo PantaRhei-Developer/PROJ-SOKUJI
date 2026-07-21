@@ -30,7 +30,7 @@ import {
   useNavigateToSettings,
   useLocalInferenceSettings,
 } from '../../../stores/settingsStore';
-import { Provider, ProviderType, isKizunaManagedProvider } from '../../../types/Provider';
+import { Provider, ProviderType, isKizunaManagedProvider, isPantarheiManagedProvider } from '../../../types/Provider';
 import { ProviderConfigFactory } from '../../../services/providers/ProviderConfigFactory';
 import { useAuth } from '../../../lib/auth/hooks';
 import { isElectron } from '../../../utils/environment';
@@ -516,7 +516,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({
             )}
           </div>
         </div>
-      ) : (!isKizunaManagedProvider(provider)) ? (
+      ) : (!isKizunaManagedProvider(provider) && !isPantarheiManagedProvider(provider)) ? (
         provider === Provider.VOLCENGINE_AST2 ? (
           // Volcengine AST2 requires both APP ID and Access Token
           <div className="volcengine-st-credentials-group">
@@ -657,6 +657,15 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({
             </button>
           </div>
         )
+      ) : isPantarheiManagedProvider(provider) ? (
+        // No sign-in state to check here — unlike Kizuna's Better Auth session,
+        // this provider's auth token comes from the SOKUJI Allo webapp handoff
+        // (see extension/background/background.js's onMessageExternal listener),
+        // not a live session this component has visibility into.
+        <div className="api-key-info">
+          <CheckCircle size={16} className="success-icon" />
+          <span>{t('simpleSettings.pantarheiAutoAuthenticated', 'Authentication managed automatically via SOKUJI Allo')}</span>
+        </div>
       ) : (
         isSignedIn ? (
           isKizunaKeyFetching ? (
