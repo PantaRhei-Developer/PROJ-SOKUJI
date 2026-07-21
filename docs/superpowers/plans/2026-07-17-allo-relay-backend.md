@@ -69,4 +69,4 @@
 - [ ] Manually verify: an allowlisted Firebase-authenticated caller can complete a full translate session end-to-end; a non-allowlisted caller is rejected; an expired/invalid token is rejected.
 - [ ] Write `docs/spec/services/allo-relay-backend.md` reflecting the deployed service's actual contract.
 - [ ] Update `docs/structure.md` with the new `relay-backend/` top-level entry.
-- [ ] Open the separate, later plan for the client-side `Provider.PANTARHEI_GEMINI` integration once this service's URL is live.
+- [x] Open the separate, later plan for the client-side `Provider.PANTARHEI_GEMINI` integration once this service's URL is live — see `docs/superpowers/plans/2026-07-21-allo-gemini-client-integration.md` (client-side code done; real end-to-end verification against a deployed/local relay is still outstanding there).

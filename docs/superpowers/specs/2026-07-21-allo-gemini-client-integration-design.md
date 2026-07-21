@@ -1,0 +1,36 @@
+# SOKUJI Allo — Client-Side PantaRhei Gemini Integration — Design
+
+**Date**: 2026-07-21
+**Status**: Approved for implementation planning
+**Scope**: Wire `Provider.PANTARHEI_GEMINI` up to actually work end-to-end in the extension — the client-side half of the relay backend, explicitly deferred as "tracked as a dependency" in `docs/superpowers/plans/2026-07-17-allo-relay-backend.md`.
+
+## Context
+
+By 2026-07-17, `relay-backend/` existed and worked in isolation (verified via standalone scripts against a real Gemini Live connection), and `extension/background/background.js` had a listener that stores an incoming Firebase ID token and flips `settings.common.provider` to `pantarhei_gemini` on `mode: 'api'` — but nothing in `src/` (the shared React app) knew what `pantarhei_gemini` meant. Selecting it did nothing; there was no `Provider` enum entry, no client, no `ClientFactory` case.
+
+This design covers closing that gap: making the existing `Provider.PANTARHEI_GEMINI` value (already written to storage by the extension side) resolve to a real, working client.
+
+## Non-Goals (this phase)
+
+- **Reconnection, session resumption, Push-to-Talk mode.** The existing `GeminiClient` (direct-to-Google) has all three, built up over many past bug fixes. Reimplementing them for a relay-routed connection is a substantial task in its own right — out of scope for the current small-scale demo (see `docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md`'s Decisions on demo scale). A dropped connection simply ends the session; the user restarts manually.
+- **A dedicated Settings UI for this provider.** It isn't configured through Settings at all — mode selection happens via the SOKUJI Allo webapp handoff. Session config (language/voice/model) reuses the existing `state.gemini` settings slice rather than introducing a parallel one with no UI to edit it.
+- **Fixing the "model can't fetch its own model list" limitation.** `PantarheiGeminiProviderConfig` inherits `GeminiProviderConfig`'s empty `models: []` — the relay hardcodes its own model (`gemini-3.5-live-translate-preview`) server-side, so this doesn't block anything, but a "refresh models" click in Settings (if ever surfaced) would be a no-op for this provider.
+
+## User-Visible Behavior
+
+No new UI. Once the SOKUJI Allo webapp hands off `mode: 'api'` and the extension has a stored Firebase ID token, the next time a translation session starts, it runs through PantaRhei's own relay (`relay-backend/`) instead of Kizuna's or a user-supplied Gemini key — same session UI as any other provider, just a different connection underneath. If the token is missing/invalid or the relay rejects the connection (not on the allowlist, rate-limited), the session simply fails to connect — no special-cased error copy for this provider yet (same fallback experience as any other provider's connection failure).
+
+## Architecture
+
+- **`src/types/Provider.ts`**: `Provider.PANTARHEI_GEMINI = 'pantarhei_gemini'`, gated behind a new `isPantarheiGeminiEnabled()` flag (mirrors `isKizunaAIEnabled()` — always on in dev, opt-in via `VITE_ENABLE_PANTARHEI_GEMINI` in production). `isPantarheiManagedProvider()` / `pantarheiBaseProvider()` added as the PantaRhei-specific counterparts to `isKizunaManagedProvider()` / `kizunaBaseProvider()` — kept distinct rather than merged, since it's a different org's relay.
+- **`src/services/providers/PantarheiGeminiProviderConfig.ts`**: spreads `GeminiProviderConfig`'s base config, overriding `id`/`displayName`/`requiresAuth`/`apiKeyLabel`/`apiKeyPlaceholder` — same "twin" shape as `KizunaAIOpenAITranslateProviderConfig`.
+- **`src/services/clients/PantarheiGeminiRelayClient.ts`** (new): implements `IClient`. Opens a plain `WebSocket` to `getPantarheiRelayWsUrl()`, sends `{ type: 'auth', idToken }` as the first message (a browser's native `WebSocket` can't set an `Authorization` header — see the relay backend's own design doc for the server-side half of this), then exchanges Gemini Live API messages transparently through the relay. Message handling (turn accumulation, transcript deltas, audio deltas) is a simplified port of `GeminiClient`'s equivalent logic — same wire format, since the relay passes Gemini's own `LiveServerMessage`s through unmodified.
+- **`src/services/clients/ClientFactory.ts`**: new case constructing `PantarheiGeminiRelayClient(apiKey)`, gated by `isPantarheiGeminiEnabled()` like the Kizuna cases are gated by `isKizunaAIEnabled()`.
+- **`src/components/MainPanel/MainPanel.tsx`**: the `apiKey` resolution switch (which already special-cases Kizuna-managed providers to fetch a fresh Better Auth token) gained a `PANTARHEI_GEMINI` case that reads the ID token from `chrome.storage.local` (key `pantarheiGemini.idToken`, the same key `background.js`'s handoff listener writes) instead of a normal settings-stored key. Deliberately `.local`, not `.sync` — the token is short-lived and device-specific, unlike synced preferences.
+- **`src/stores/settingsStore.ts`**: `createSessionConfig`'s switch gained a `PANTARHEI_GEMINI` case reusing `createGeminiSessionConfig(state.gemini, ...)` — see Non-Goals for why no dedicated settings slice.
+- **`src/components/Settings/sections/ProviderSection.tsx`**: the API-key-field-hiding branch, previously keyed only on `isKizunaManagedProvider(provider)`, needed a second branch for `isPantarheiManagedProvider(provider)` — reusing Kizuna's branch as-is would have shown Kizuna-specific copy (`isSignedIn`/Better-Auth fetching state) for an unrelated provider, so this is a separate, simpler "authentication managed automatically" message with no auth-state checks.
+
+## Decisions (resolved during implementation, 2026-07-21)
+
+- **Scope grew beyond the originally-planned file list** (`Provider.ts`, `ProviderConfig`, `ClientFactory`, the relay client, `environment.ts`) to also include `MainPanel.tsx`, `settingsStore.ts`, and `ProviderSection.tsx`. This wasn't avoidable: without the `MainPanel.tsx`/`settingsStore.ts` changes, `ClientFactory.createClient` would never actually be called with a valid token or session config for this provider — the enum value would exist but be functionally dead. The `ProviderSection.tsx` change was a deliberate, separately-confirmed choice (see Non-Goals framing in the 2026-07-17 relay-backend doc's follow-up discussion) to avoid a broken-looking Settings screen if a user ever opened it while this provider was active, without building full settings-state parity with the Kizuna twins.
+- **Simplified relay client confirmed as the right scope for now.** Full parity with `GeminiClient` (reconnection, session resumption, PTT) was considered and explicitly deferred — see Non-Goals.
