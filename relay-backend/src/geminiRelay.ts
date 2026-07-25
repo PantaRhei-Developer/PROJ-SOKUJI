@@ -19,8 +19,13 @@ const LIVE_MODEL = 'gemini-3.5-live-translate-preview';
  * Live API session for one relay session. Resolves with the session's
  * duration in milliseconds once it ends (either side closes), for the
  * caller to log usage.
+ *
+ * `instructions` carries the client's source/target language pair (the same
+ * string GeminiClient.ts sends directly to Google as `systemInstruction`).
+ * Without it, this preview model falls back to whatever language behavior
+ * it defaults to regardless of what the user selected in the UI.
  */
-export async function relayToGemini(clientWs: WebSocket): Promise<number> {
+export async function relayToGemini(clientWs: WebSocket, instructions?: string): Promise<number> {
   const startedAt = Date.now();
 
   return new Promise<number>((resolve, reject) => {
@@ -30,7 +35,10 @@ export async function relayToGemini(clientWs: WebSocket): Promise<number> {
     ai.live
       .connect({
         model: LIVE_MODEL,
-        config: { responseModalities: [Modality.AUDIO] },
+        config: {
+          responseModalities: [Modality.AUDIO],
+          ...(instructions ? { systemInstruction: { parts: [{ text: instructions }] } } : {}),
+        },
         callbacks: {
           onopen: () => {
             // Ready to receive audio from the client.
