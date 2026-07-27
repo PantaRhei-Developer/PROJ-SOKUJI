@@ -569,13 +569,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
   if (message?.type !== 'sokuji-allo/set-mode') return;
   if (message.mode !== 'local' && message.mode !== 'api') return;
+  if (message.mode === 'api' && typeof message.idToken !== 'string') return;
 
   (async () => {
-    // 'api' mode has no working backend-managed provider yet (tracked in
-    // docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md), so it
-    // only opens a confirmation tab for now — it does not change the provider.
     if (message.mode === 'local') {
       await chrome.storage.sync.set({ 'settings.common.provider': 'local_inference' });
+    }
+
+    if (message.mode === 'api') {
+      await chrome.storage.local.set({'pantarheiGemini.idToken': message.idToken});
+      await chrome.storage.sync.set({ 'settings.common.provider': 'pantarhei_gemini' });
     }
     // A normal tab (not the side panel) — the side panel is tab-scoped and
     // would disappear if the webapp tab that triggered this handoff gets

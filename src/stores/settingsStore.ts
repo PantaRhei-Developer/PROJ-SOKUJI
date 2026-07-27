@@ -1162,6 +1162,34 @@ const useSettingsStore = create<SettingsStore>()(
       const state = get();
       const provider = state.provider;
 
+      // PantaRhei Gemini: "valid" means the extension has a stored Firebase
+      // ID token from the SOKUJI Allo webapp handoff — there's no API key
+      // to check, and no live session to query the way Kizuna's Better
+      // Auth getToken() call does. Without this early return,
+      // isApiKeyValid stays at its initial `null` forever for this
+      // provider (nothing else ever sets it), permanently disabling Start.
+      if (provider === Provider.PANTARHEI_GEMINI) {
+        const hasToken = await new Promise<boolean>((resolve) => {
+          if (typeof chrome === 'undefined' || !chrome?.storage?.local) {
+            resolve(false);
+            return;
+          }
+          chrome.storage.local.get('pantarheiGemini.idToken', (result: Record<string, any>) => {
+            resolve(!!result['pantarheiGemini.idToken']);
+          });
+        });
+        const message = hasToken ? '' : 'Complete the SOKUJI Allo handoff to use this provider';
+        set({
+          isApiKeyValid: hasToken,
+          availableModels: hasToken
+            ? [{ id: 'gemini-3.5-live-translate-preview', type: 'realtime' as const, created: 0 }]
+            : [],
+          validationMessage: message,
+          isValidating: false,
+        });
+        return { valid: hasToken, message, validating: false };
+      }
+
       // Local inference: check model readiness instead of API key.
       // This is the SINGLE authority for LOCAL_INFERENCE session readiness.
       if (provider === Provider.LOCAL_INFERENCE) {
@@ -1590,6 +1618,8 @@ const useSettingsStore = create<SettingsStore>()(
           return state.kizunaVolcengineAst2;
         case Provider.LOCAL_INFERENCE:
           return state.localInference;
+        case Provider.PANTARHEI_GEMINI:
+          return state.gemini;
         default:
           return state.openai;
       }
@@ -1685,6 +1715,14 @@ const useSettingsStore = create<SettingsStore>()(
           break;
         case Provider.LOCAL_INFERENCE:
           config = createLocalInferenceSessionConfig(state.localInference, systemInstructions);
+          break;
+        case Provider.PANTARHEI_GEMINI:
+          // Reuses the plain Gemini language/voice settings rather than a
+          // dedicated settings slice — this provider isn't configured
+          // through the Settings UI at all (it's set via the SOKUJI Allo
+          // webapp handoff), so a separate slice would have no UI to edit
+          // it and would just duplicate state.gemini's shape.
+          config = createGeminiSessionConfig(state.gemini, systemInstructions);
           break;
         default:
           config = createOpenAISessionConfig(state.openai, systemInstructions);
@@ -1816,6 +1854,7 @@ export const useCurrentTurnDetectionMode = (): string => useSettingsStore((state
     case Provider.OPENAI: return state.openai.turnDetectionMode;
     case Provider.OPENAI_COMPATIBLE: return state.openaiCompatible.turnDetectionMode;
     case Provider.GEMINI: return state.gemini.turnDetectionMode;
+    case Provider.PANTARHEI_GEMINI: return state.gemini.turnDetectionMode;
     case Provider.VOLCENGINE_AST2: return state.volcengineAST2.turnDetectionMode;
     case Provider.KIZUNA_AI_VOLCENGINE_AST2: return state.kizunaVolcengineAst2.turnDetectionMode;
     // KIZUNA_AI_OPENAI_TRANSLATE has no turn detection (translate), like

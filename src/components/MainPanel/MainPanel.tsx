@@ -1481,6 +1481,25 @@ const MainPanel: React.FC<MainPanelProps> = () => {
           // Local inference doesn't need an API key; placeholder for ClientFactory
           apiKey = 'local';
           break;
+        case Provider.PANTARHEI_GEMINI: {
+          // Relay-managed provider — the Firebase ID token was stored by the
+          // SOKUJI Allo webapp handoff (extension/background/background.js's
+          // onMessageExternal listener), not entered by the user as a key.
+          // Deliberately chrome.storage.local (not .sync): the ID token is
+          // short-lived and device-specific, unlike synced preferences.
+          const hasChromeStorage = typeof chrome !== 'undefined' && chrome?.storage?.local;
+          if (hasChromeStorage) {
+            const stored = await new Promise<string>((resolve) => {
+              chrome.storage.local.get('pantarheiGemini.idToken', (result: Record<string, any>) => {
+                resolve(result['pantarheiGemini.idToken'] || '');
+              });
+            });
+            apiKey = stored;
+          } else {
+            apiKey = '';
+          }
+          break;
+        }
         default:
           throw new Error(`Unsupported provider: ${provider}`);
       }

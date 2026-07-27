@@ -96,7 +96,11 @@ export function SettingsInitializer() {
   useEffect(() => {
     if (!settingsLoaded) return;
     // Skip LOCAL_INFERENCE (handled by the next effect) and Kizuna-managed
-    // providers (handled above)
+    // providers (handled above). PantaRhei Gemini is NOT skipped — unlike
+    // Kizuna, it has no dedicated effect of its own, so this generic path
+    // is what actually sets isApiKeyValid for it (validateApiKey() has an
+    // early-return branch for it that checks chrome.storage instead of an
+    // API key).
     if (provider === Provider.LOCAL_INFERENCE || isKizunaManagedProvider(provider)) return;
 
     prevProviderRef.current = provider;

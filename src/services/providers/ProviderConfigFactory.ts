@@ -6,11 +6,12 @@ import { OpenAITranslateProviderConfig } from './OpenAITranslateProviderConfig';
 import { PalabraAIProviderConfig } from './PalabraAIProviderConfig';
 import { KizunaAIOpenAITranslateProviderConfig } from './KizunaAIOpenAITranslateProviderConfig';
 import { KizunaAIVolcengineAST2ProviderConfig } from './KizunaAIVolcengineAST2ProviderConfig';
+import { PantarheiGeminiProviderConfig } from './PantarheiGeminiProviderConfig';
 import { VolcengineSTProviderConfig } from './VolcengineSTProviderConfig';
 import { VolcengineAST2ProviderConfig } from './VolcengineAST2ProviderConfig';
 import { LocalInferenceProviderConfig } from './LocalInferenceProviderConfig';
 import { Provider, ProviderType } from '../../types/Provider';
-import { isKizunaAIEnabled, isPalabraAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled, isElectron, isExtension } from '../../utils/environment';
+import { isKizunaAIEnabled, isPalabraAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled, isPantarheiGeminiEnabled, isElectron, isExtension } from '../../utils/environment';
 
 interface ProviderConfigInstance {
   getConfig(): ProviderConfig;
@@ -52,6 +53,11 @@ export class ProviderConfigFactory {
     // Register Volcengine AST 2.0 in Electron (IPC proxy) and Extension (declarativeNetRequest header injection)
     if ((isElectron() || isExtension()) && isVolcengineAST2Enabled()) {
       ProviderConfigFactory.configs.set(Provider.VOLCENGINE_AST2, new VolcengineAST2ProviderConfig());
+    }
+
+    // Only register PantaRhei Gemini if the feature flag is enabled
+    if (isPantarheiGeminiEnabled()) {
+      ProviderConfigFactory.configs.set(Provider.PANTARHEI_GEMINI, new PantarheiGeminiProviderConfig());
     }
   }
 

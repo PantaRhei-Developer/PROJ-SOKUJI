@@ -166,6 +166,12 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_ENABLE_VOLCENGINE_AST2': JSON.stringify(
         envVal('VITE_ENABLE_VOLCENGINE_AST2', 'false', 'true')
       ),
+      'import.meta.env.VITE_PANTARHEI_BACKEND_URL': JSON.stringify(
+        envVal('VITE_PANTARHEI_BACKEND_URL', '')
+      ),
+      'import.meta.env.VITE_ENABLE_PANTARHEI_GEMINI': JSON.stringify(
+        envVal('VITE_ENABLE_PANTARHEI_GEMINI', 'false', 'true')
+      ),
       'import.meta.env.VITE_POSTHOG_KEY': JSON.stringify(
         envVal('POSTHOG_KEY', '')
       ),

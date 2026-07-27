@@ -5,12 +5,13 @@ import { OpenAIWebRTCClient } from './OpenAIWebRTCClient';
 import { OpenAITranslateGAClient } from './OpenAITranslateGAClient';
 import { OpenAITranslateWebRTCClient } from './OpenAITranslateWebRTCClient';
 import { GeminiClient } from './GeminiClient';
+import { PantarheiGeminiRelayClient } from './PantarheiGeminiRelayClient';
 import { PalabraAIClient } from './PalabraAIClient';
 import { VolcengineSTClient } from './VolcengineSTClient';
 import { VolcengineAST2Client } from './VolcengineAST2Client';
 import { LocalInferenceClient } from './LocalInferenceClient';
 import { Provider, ProviderType } from '../../types/Provider';
-import { getRelayWsUrl, isKizunaAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled } from '../../utils/environment';
+import { getRelayWsUrl, isKizunaAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled, isPantarheiGeminiEnabled } from '../../utils/environment';
 import { TransportType } from '../../stores/settingsStore';
 
 /**
@@ -119,6 +120,16 @@ export class ClientFactory {
           throw new Error(`Provider ${provider} is not available in this build`);
         }
         return new VolcengineAST2Client('', '', undefined, { wsUrl: `${getRelayWsUrl()}/ast/translate`, sessionToken: apiKey });
+
+      case Provider.PANTARHEI_GEMINI:
+        if (!isPantarheiGeminiEnabled()) {
+          throw new Error(`Provider ${provider} is not available in this build`);
+        }
+        // apiKey here is actually the Firebase ID token (see MainPanel's
+        // apiKey-resolution switch) — same "reuse the generic apiKey slot
+        // for whatever credential this provider needs" pattern the Kizuna
+        // cases above use for their Better Auth token.
+        return new PantarheiGeminiRelayClient(apiKey);
 
       case Provider.VOLCENGINE_ST:
         // Check if Volcengine ST is enabled before creating the client

@@ -2,7 +2,7 @@
  * Provider types and enums for AI service providers
  */
 
-import { isKizunaAIEnabled, isPalabraAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled } from '../utils/environment';
+import { isKizunaAIEnabled, isPalabraAIEnabled, isVolcengineSTEnabled, isVolcengineAST2Enabled, isPantarheiGeminiEnabled } from '../utils/environment';
 
 /**
  * Supported AI service providers
@@ -13,6 +13,7 @@ export enum Provider {
   PALABRA_AI = 'palabraai',
   KIZUNA_AI_OPENAI_TRANSLATE = 'kizunaai_openai_translate',
   KIZUNA_AI_VOLCENGINE_AST2 = 'kizunaai_volcengine_ast2',
+  PANTARHEI_GEMINI = 'pantarhei_gemini',
   OPENAI_COMPATIBLE = 'openai_compatible',
   OPENAI_TRANSLATE = 'openai_translate',
   VOLCENGINE_ST = 'volcengine_st',
@@ -23,7 +24,7 @@ export enum Provider {
 /**
  * Provider type definition
  */
-export type ProviderType = Provider.OPENAI | Provider.GEMINI | Provider.PALABRA_AI | Provider.KIZUNA_AI_OPENAI_TRANSLATE | Provider.KIZUNA_AI_VOLCENGINE_AST2 | Provider.OPENAI_COMPATIBLE | Provider.OPENAI_TRANSLATE | Provider.VOLCENGINE_ST | Provider.VOLCENGINE_AST2 | Provider.LOCAL_INFERENCE;
+export type ProviderType = Provider.OPENAI | Provider.GEMINI | Provider.PALABRA_AI | Provider.KIZUNA_AI_OPENAI_TRANSLATE | Provider.KIZUNA_AI_VOLCENGINE_AST2 | Provider.PANTARHEI_GEMINI | Provider.OPENAI_COMPATIBLE | Provider.OPENAI_TRANSLATE | Provider.VOLCENGINE_ST | Provider.VOLCENGINE_AST2 | Provider.LOCAL_INFERENCE;
 
 /**
  * Array of all supported providers
@@ -39,6 +40,7 @@ export const SUPPORTED_PROVIDERS: ProviderType[] = [
   ...(isKizunaAIEnabled() ? [Provider.KIZUNA_AI_OPENAI_TRANSLATE, Provider.KIZUNA_AI_VOLCENGINE_AST2] : []),
   ...(isVolcengineSTEnabled() ? [Provider.VOLCENGINE_ST] : []),
   ...(isVolcengineAST2Enabled() ? [Provider.VOLCENGINE_AST2] : []),
+  ...(isPantarheiGeminiEnabled() ? [Provider.PANTARHEI_GEMINI] : []),
   Provider.OPENAI_COMPATIBLE,
 ];
 
@@ -85,6 +87,8 @@ export function getProviderDisplayName(provider: ProviderType): string {
       return 'Doubao AST 2.0';
     case Provider.LOCAL_INFERENCE:
       return 'Free';
+    case Provider.PANTARHEI_GEMINI:
+      return 'PantaRhei Gemini';
     default:
       return provider;
   }
@@ -98,5 +102,22 @@ export function isKizunaManagedProvider(p: Provider): boolean {
 export function kizunaBaseProvider(p: Provider): Provider | undefined {
   if (p === Provider.KIZUNA_AI_OPENAI_TRANSLATE) return Provider.OPENAI_TRANSLATE;
   if (p === Provider.KIZUNA_AI_VOLCENGINE_AST2) return Provider.VOLCENGINE_AST2;
+  return undefined;
+}
+
+/**
+ * PantaRhei's own relay-managed twin of Gemini (see
+ * docs/superpowers/specs/2026-07-17-allo-relay-backend-design.md) — no API
+ * key, authenticated via a Firebase ID token instead. Kept as a distinct
+ * concept from isKizunaManagedProvider() since it's a different org's
+ * relay, not Kizuna's.
+ */
+export function isPantarheiManagedProvider(p: Provider): boolean {
+  return p === Provider.PANTARHEI_GEMINI;
+}
+
+/** The user-managed base provider whose behavior/UI the PantaRhei-managed twin reuses. */
+export function pantarheiBaseProvider(p: Provider): Provider | undefined {
+  if (p === Provider.PANTARHEI_GEMINI) return Provider.GEMINI;
   return undefined;
 }

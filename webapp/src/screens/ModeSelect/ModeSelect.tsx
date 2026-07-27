@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
+import { signOut, getIdToken } from 'firebase/auth';
 import ModeCard from '../../components/ModeCard/ModeCard';
 import PrimaryButton from '../../components/common/PrimaryButton';
 import BackLink from '../../components/common/BackLink';
@@ -22,9 +22,10 @@ function ModeSelect() {
   const [handoffState, setHandoffState] = useState<HandoffState>('idle');
 
   async function handleNext() {
-    if (!mode) return;
+    if (!mode || !user) return;
     setHandoffState('sending');
-    const result = await sendModeToExtension(mode);
+    const idToken = await getIdToken(user);
+    const result = await sendModeToExtension(mode, idToken);
     setHandoffState(result === 'delivered' ? 'delivered' : 'fallback');
   }
 

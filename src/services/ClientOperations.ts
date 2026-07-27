@@ -120,6 +120,22 @@ export class ClientOperations {
             created: Date.now() / 1000
           }]
         };
+      case Provider.PANTARHEI_GEMINI:
+        // Relay-managed twin of Gemini — same reasoning as the Kizuna twins
+        // above: the "apiKey" is a Firebase ID token, not a provider key,
+        // and the relay uses a single fixed model server-side (see
+        // relay-backend/src/geminiRelay.ts), so there's no model list to
+        // fetch. Not normally reachable — the Settings UI doesn't offer a
+        // validate/refresh action for this provider — but handled here
+        // rather than left to throw, in case some other path calls in.
+        return {
+          validation: { valid: !!apiKey, message: '', validating: false },
+          models: [{
+            id: ClientOperations.getLatestRealtimeModel([], provider),
+            type: 'realtime',
+            created: Date.now() / 1000
+          }]
+        };
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }
@@ -153,6 +169,11 @@ export class ClientOperations {
       case Provider.KIZUNA_AI_VOLCENGINE_AST2:
         // Relay twin of Doubao AST 2.0 — fixed single model.
         return 'ast-v2-s2s';
+      case Provider.PANTARHEI_GEMINI:
+        // Relay hardcodes its own model server-side (see
+        // relay-backend/src/geminiRelay.ts) — this identifier is just for
+        // display/logging, not sent anywhere.
+        return 'gemini-3.5-live-translate-preview';
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }
