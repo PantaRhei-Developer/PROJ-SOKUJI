@@ -12,15 +12,20 @@ const AUTH_TIMEOUT_MS = 5000;
 interface AuthMessage {
   type: 'auth';
   idToken: string;
+  instructions?: string;
 }
 
 function isAuthMessage(value: unknown): value is AuthMessage {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as Record<string, unknown>).type === 'auth' &&
-    typeof (value as Record<string, unknown>).idToken === 'string'
-  );
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    (value as Record<string, unknown>).type !== 'auth' ||
+    typeof (value as Record<string, unknown>).idToken !== 'string'
+  ) {
+    return false;
+  }
+  const instructions = (value as Record<string, unknown>).instructions;
+  return instructions === undefined || typeof instructions === 'string';
 }
 
 const httpServer = createServer((_req, res) => {
@@ -64,7 +69,7 @@ wss.on('connection', (ws) => {
       authenticatedUid = decoded.uid;
       clearTimeout(authTimeout);
 
-      const durationMs = await relayToGemini(ws);
+      const durationMs = await relayToGemini(ws, parsed.instructions);
       await logUsage(authenticatedUid, durationMs);
     } catch (error) {
       console.error('[relay] session error:', error);

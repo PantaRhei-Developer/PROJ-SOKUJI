@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Cpu, Zap, HelpCircle, ChevronDown, ChevronUp, CheckCircle, AlertCircle, ExternalLink, X } from 'lucide-react';
 import { OpenAIIcon, GeminiIcon, PalabraAIIcon, KizunaAIIcon, VolcengineIcon } from '../../Icons/ProviderIcons';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Tooltip from '../../Tooltip/Tooltip';
 import {
   useProvider,
@@ -43,6 +43,7 @@ import {
   getTtsModelsForLanguage,
   estimateModelMemoryByDevice,
 } from '../../../lib/local-inference/modelManifest';
+import LocalInferenceQuickStart from './LocalInferenceQuickStart';
 
 const TUTORIAL_URLS: Partial<Record<ProviderType, string>> = {
   [Provider.OPENAI]: 'https://sokuji.kizuna.ai/docs/tutorials/openai-setup',
@@ -712,25 +713,18 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({
         </div>
       )}
 
-      {validationMessage && (
+      {provider === Provider.LOCAL_INFERENCE && !isApiKeyValid ? (
+        <LocalInferenceQuickStart
+          sourceLanguage={localInferenceSettings.sourceLanguage}
+          targetLanguage={localInferenceSettings.targetLanguage}
+          onNavigateToDetails={() => {
+            setUIMode('advanced');
+            setTimeout(() => navigateToSettings('model-management'), 100);
+          }}
+        />
+      ) : validationMessage && (
         <div className={`validation-message ${isApiKeyValid ? 'success' : 'error'}`}>
-          {provider === Provider.LOCAL_INFERENCE && !isApiKeyValid ? (
-            <Trans
-              i18nKey="settings.localInferenceModelsRequired"
-              components={{
-                settingsLink: <a
-                  className="models-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setUIMode('advanced');
-                    setTimeout(() => navigateToSettings('model-management'), 100);
-                  }}
-                />
-              }}
-            />
-          ) : (
-            validationMessage
-          )}
+          {validationMessage}
         </div>
       )}
     </div>

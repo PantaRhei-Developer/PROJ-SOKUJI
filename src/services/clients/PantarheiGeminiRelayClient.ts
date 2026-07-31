@@ -80,7 +80,7 @@ export class PantarheiGeminiRelayClient implements IClient {
       }, CONNECT_TIMEOUT_MS);
 
       ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'auth', idToken: this.idToken }));
+        ws.send(JSON.stringify({ type: 'auth', idToken: this.idToken, instructions: config.instructions }));
       };
 
       ws.onmessage = (event) => {

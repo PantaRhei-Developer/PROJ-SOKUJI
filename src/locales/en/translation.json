@@ -276,6 +276,11 @@
     "modelTypeAsr": "Speech Recognition (ASR)",
     "modelTypeTranslation": "Translation",
     "modelTypeTts": "Speech Synthesis (TTS)",
+    "localInferenceQuickStart": {
+      "description": "This language pair needs a one-time download (~{{size}}MB) before it can be used.",
+      "downloading": "Downloading... ({{percent}}%)",
+      "button": "Download and get started"
+    },
     "edgeTtsVoice": "Voice",
     "loadingVoices": "Loading voices...",
     "reasoningEffort": "Reasoning effort",

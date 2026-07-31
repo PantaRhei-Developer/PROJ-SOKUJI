@@ -1281,6 +1281,53 @@
   }
 }
 
+.local-inference-quick-start {
+  margin-top: vars.$space-2;
+  margin-bottom: vars.$space-2;
+
+  .quick-start-description {
+    color: vars.$text-secondary;
+    font-size: vars.$font-caption;
+    margin-bottom: 8px;
+  }
+
+  .quick-start-error {
+    color: vars.$color-error;
+    font-size: vars.$font-caption;
+    margin-bottom: 8px;
+  }
+
+  .quick-start-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: vars.$color-primary;
+    color: white;
+    border: none;
+    border-radius: vars.$radius-sm;
+    cursor: pointer;
+    font-size: vars.$font-title;
+    font-weight: 600;
+    transition: background-color vars.$transition-fast;
+
+    &:hover:not(:disabled) {
+      background-color: vars.$color-primary-hover;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.85;
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
 // Animation keyframes
 @keyframes spin {
   from { transform: rotate(0deg); }
