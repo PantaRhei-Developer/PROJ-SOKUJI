@@ -60,9 +60,22 @@
       }
     }
 
+    // If a device was already registered with the emulator, its meta still
+    // points at the trackGenerator/stream we're about to replace below —
+    // Meet keeps consuming that now-dead stream forever unless the
+    // registration is torn down first. removeEmulatedDevice() stops + ends
+    // the old track, which fires the standard 'ended' event Meet listens
+    // for to notice the device went away and reacquire it once
+    // registerVirtualDevice() re-adds it further down.
+    const needsReregistration = virtualDeviceId !== null;
+    if (needsReregistration) {
+      navigator.mediaDevices.removeEmulatedDevice(virtualDeviceId);
+      virtualDeviceId = null;
+    }
+
     try {
       console.info('[Sokuji] [VirtualMic] Initializing virtual microphone');
-      
+
       trackGenerator = new window.MediaStreamTrackGenerator({ kind: 'audio' });
       audioWriter = trackGenerator.writable.getWriter();
       virtualStream = new MediaStream([trackGenerator]);
@@ -89,8 +102,13 @@
       
       isActive = true;
       audioTimestamp = performance.now() * 1000; // Reset timestamp to current time in microseconds
-      
+
       console.info('[Sokuji] [VirtualMic] Virtual microphone initialized successfully');
+
+      if (needsReregistration) {
+        registerVirtualDevice();
+      }
+
       return true;
     } catch (error) {
       console.error('[Sokuji] [VirtualMic] Failed to initialize virtual microphone:', error);
