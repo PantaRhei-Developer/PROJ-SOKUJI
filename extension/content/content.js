@@ -30,9 +30,20 @@ function getExtensionURL(path) {
 
 // Inject the device emulator script first
 function injectDeviceEmulatorScript() {
+  // Unlike the permission iframe below, this script can't simply be removed
+  // and re-injected: re-running it re-wraps the already-patched
+  // navigator.mediaDevices.enumerateDevices, stacking a second copy of every
+  // emulated device on top of the first. Skip injection entirely if it's
+  // already present (e.g. the extension was reloaded while this tab stayed
+  // open, or something else calls this twice).
+  if (document.getElementById('sokuji-device-emulator-script')) {
+    console.info('[Sokuji] [Content] Device emulator script already injected, skipping');
+    return;
+  }
+
   // Get the URL of the device emulator script
   const scriptURL = getExtensionURL('content/device-emulator.iife.js');
-  
+
   // Create a script element
   const script = document.createElement('script');
   script.src = scriptURL;
@@ -56,6 +67,12 @@ function injectDeviceEmulatorScript() {
 
 // Inject the virtual microphone script as early as possible
 function injectVirtualMicrophoneScript() {
+  // See injectDeviceEmulatorScript() above — same one-shot constraint applies.
+  if (document.getElementById('sokuji-virtual-microphone-script')) {
+    console.info('[Sokuji] [Content] Virtual microphone script already injected, skipping');
+    return;
+  }
+
   // Get the URL of the script
   const scriptURL = getExtensionURL('content/virtual-microphone.js');
   
